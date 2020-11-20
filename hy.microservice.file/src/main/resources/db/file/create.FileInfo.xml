@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+
+    <import name="sqls"            class="java.util.ArrayList" />
+    <import name="sqlGroup"        class="org.hy.common.xml.plugins.XSQLGroup" />
+    <import name="sql"             class="org.hy.common.xml.XSQL" />
+
+
+
+    <!-- 文件信息（包含图片、视频、文档等）创建（自动创建）的相关SQL -->
+    <sqls>
+    
+        <sql id="XSQL_Create_FileInfo">
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                CREATE TABLE FileInfo
+                (
+                 id               VARCHAR(64)     NOT NULL          COMMENT '主键'
+                ,serviceType      VARCHAR(64)     NOT NULL          COMMENT '业务类型（值内容由业务决定）'
+                ,type             INT             NOT NULL          COMMENT '文件类型：0.普通文件；1.照片；2.视频；3.Excel；4.Word；5.PPT；6.PDF；7.压缩包'
+                ,deviceNo         VARCHAR(64)                       COMMENT '设备编号或OpenID'
+                ,deviceType       VARCHAR(32)                       COMMENT '设备类型'
+                ,userID           VARCHAR(64)     NOT NULL          COMMENT '用户编号'
+                ,userName         VARCHAR(128)                      COMMENT '用户名称'
+                ,userIcon         VARCHAR(1000)                     COMMENT '用户头像路径'
+                ,fileSize         BIGINT          NOT NULL          COMMENT '文件大小'
+                ,goodCount        INT             NOT NULL          COMMENT '点赞次数'
+                ,url              VARCHAR(2000)   NOT NULL          COMMENT '文件地址'
+                ,path             VARCHAR(2000)   NOT NULL          COMMENT '文件保存的路径（全路径）'
+                ,groupID          VARCHAR(64)     NOT NULL          COMMENT '分组编号'
+                ,groupInfo        VARCHAR(4000)                     COMMENT '分组信息'
+                ,isShow           INT             NOT NULL          COMMENT '是否显示。1显示；0不显示'
+                ,createTime       DATETIME        NOT NULL          COMMENT '创建时间'
+                ,auditState       VARCHAR(2)      NOT NULL          COMMENT '0：待审核、1：已审核'
+                ,auditResult      VARCHAR(2)                        COMMENT '0：不通过、1：通过'
+                ,auditTime        DATETIME                          COMMENT '审核时间'
+                ,width            VARCHAR(32)                       COMMENT '照片、视频的宽度'
+                ,height           VARCHAR(32)                       COMMENT '照片、视频的高度'
+                ,thumbnailFileID  VARCHAR(64)                       COMMENT '缩略图的文件ID'
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;/
+
+                ALTER TABLE FileInfo ADD CONSTRAINT PK_FileInfo PRIMARY KEY (id);/
+                
+                Alter TABLE FileInfo COMMENT                           = '文件信息（包含图片、视频、文档等）';/
+                ]]>
+            </content>
+            
+            <comment>文件信息（包含图片、视频、文档等）</comment>
+            <create>FileInfo</create>
+            
+        </sql>
+        
+    </sqls>
+    
+</config>

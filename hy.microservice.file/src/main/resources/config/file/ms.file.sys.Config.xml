@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+
+    <import name="xconfig"         class="java.util.ArrayList" />
+    <import name="xparam"          class="java.util.Hashtable" />
+    <import name="item"            class="org.hy.common.app.Param" />
+    
+    
+    
+    <!-- 系统配置参数信息 -->
+    <xconfig>
+
+        <xparam id="SYSParam_MS_File" key="name">
+            
+            <item id="IsInitDSG_MS_File">
+                <name>IsInitDSG_MS_File</name>
+                <value>启用</value>
+                <comment>是否初始化数据库连接池组。如果不在内部初始化，请在外部预先初始化好</comment>
+            </item>
+            
+            
+            <item id="MS_File_RootPackageName">
+                <name>MS_File_RootPackageName</name>
+                <value>org.hy.microservice.file</value>
+                <comment>顶级包的路径。用于初始化。一般不修改</comment>
+            </item>
+            
+            
+            <item id="MS_File_WebURL">
+                <name>MS_File_WebURL</name>
+                <value>http://www.manwucai.com/mwcBase</value>
+                <comment>文件(包括图片、视频)服务的域名如：https://www.zzz.com</comment>
+            </item>
+            
+            
+            <item id="MS_File_SaveDir">
+                <name>MS_File_SaveDir</name>
+                <value>/usr/local/bin/apache-tomcat-8.5.47-pord/webapps/mwcBase/upload/</value>
+                <comment>文件服务的本地保存目录</comment>
+            </item>
+            
+            
+            <item id="MS_File_FFMpegHome">
+                <name>MS_File_FFMpegHome</name>
+                <value>/usr</value>
+                <comment>视频解释命令的安装目录</comment>
+            </item>
+            
+        </xparam>
+        
+    </xconfig>
+    
+</config>

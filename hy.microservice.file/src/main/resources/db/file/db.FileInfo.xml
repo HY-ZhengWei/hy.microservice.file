@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+
+    <import name="sqls"            class="java.util.ArrayList" />
+    <import name="sqlGroup"        class="org.hy.common.xml.plugins.XSQLGroup" />
+    <import name="sql"             class="org.hy.common.xml.XSQL" />
+
+
+
+    <sqls>
+    
+        <sql id="XSQL_FileInfo_Insert_Default"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                INSERT  INTO FileInfo
+                       (
+                        id     
+                       ,serviceType
+                       ,type   
+                       ,deviceNo 
+                       ,deviceType 
+                       ,userID    
+                       ,userName  
+                       ,userIcon
+                       ,fileSize
+                       ,goodCount 
+                       ,url  
+                       ,path
+                       ,groupID
+                       ,groupInfo  
+                       ,isShow   
+                       ,createTime
+                       ,auditState
+                       ,auditResult
+                       ,auditTime
+                       )
+                VALUES (
+                        ':id'
+                       ,':serviceType'
+                       ,':type'
+                       ,':deviceNo'
+                       ,':deviceType'
+                       ,':userID'
+                       ,':userName'
+                       ,':userIcon'
+                       ,':fileSize'
+                       ,':goodCount'
+                       ,':url'
+                       ,':path'
+                       ,':groupID'
+                       ,':groupInfo'
+                       ,':isShow'
+                       ,NOW()
+                       ,':auditState'
+                       ,':auditResult'
+                       ,':auditTime'
+                       )
+                ]]>
+            </content>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_Insert_Image"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                INSERT  INTO FileInfo
+                       (
+                        id     
+                       ,serviceType
+                       ,type   
+                       ,deviceNo 
+                       ,deviceType 
+                       ,userID    
+                       ,userName  
+                       ,userIcon
+                       ,fileSize
+                       ,goodCount 
+                       ,url  
+                       ,path
+                       ,groupID
+                       ,groupInfo  
+                       ,isShow   
+                       ,createTime
+                       ,auditState
+                       ,auditResult
+                       ,auditTime
+                       ,width
+                       ,height    
+                       )
+                VALUES (
+                        ':id'
+                       ,':serviceType'
+                       ,':type'
+                       ,':deviceNo'
+                       ,':deviceType'
+                       ,':userID'
+                       ,':userName'
+                       ,':userIcon'
+                       ,':fileSize'
+                       ,':goodCount'
+                       ,':url'
+                       ,':path'
+                       ,':groupID'
+                       ,':groupInfo'
+                       ,':isShow'
+                       ,NOW()
+                       ,':auditState'
+                       ,':auditResult'
+                       ,':auditTime'
+                       ,':width'
+                       ,':height'
+                       )
+                ]]>
+            </content>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_Insert_Video"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                INSERT  INTO FileInfo
+                       (
+                        id     
+                       ,serviceType
+                       ,type   
+                       ,deviceNo 
+                       ,deviceType 
+                       ,userID    
+                       ,userName  
+                       ,userIcon
+                       ,fileSize
+                       ,goodCount 
+                       ,url  
+                       ,path
+                       ,groupID
+                       ,groupInfo  
+                       ,isShow   
+                       ,createTime
+                       ,auditState
+                       ,auditResult
+                       ,auditTime
+                       ,width
+                       ,height  
+                       ,thumbnailFileID  
+                       )
+                VALUES (
+                        ':id'
+                       ,':serviceType'
+                       ,':type'
+                       ,':deviceNo'
+                       ,':deviceType'
+                       ,':userID'
+                       ,':userName'
+                       ,':userIcon'
+                       ,':fileSize'
+                       ,':goodCount'
+                       ,':url'
+                       ,':path'
+                       ,':groupID'
+                       ,':groupInfo'
+                       ,':isShow'
+                       ,NOW()
+                       ,':auditState'
+                       ,':auditResult'
+                       ,':auditTime'
+                       ,':width'
+                       ,':height'
+                       ,':thumbnailFileID'
+                       )
+                ]]>
+            </content>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_Update_GoodCount_Add"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                UPDATE  FileInfo
+                   SET  goodCount = goodCount + 1
+                 WHERE  id        = ':id'
+                ]]>
+            </content>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_Update_GoodCount_Subtract"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                UPDATE  FileInfo
+                   SET  goodCount = goodCount - 1
+                 WHERE  id        = ':id'
+                ]]>
+            </content>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_QueryFiles_ByAll"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                SELECT  A.id  
+                       ,A.serviceType
+                       ,A.type   
+                       ,A.deviceNo 
+                       ,A.deviceType 
+                       ,A.userID    
+                       ,A.userName  
+                       ,A.userIcon
+                       ,A.fileSize
+                       ,A.goodCount 
+                       ,(
+                         SELECT  COUNT(1)
+                           FROM  tbl_base_userNiceLog  SA
+                          WHERE  SA.userID   = A.userID
+                            AND  SA.niceID   = A.id
+                            AND  SA.niceType = A.serviceType
+                        )    AS  myIsNice
+                       ,A.url  
+                       ,A.path
+                       ,A.groupID
+                       ,A.groupInfo  
+                       ,A.isShow   
+                       ,A.createTime
+                       ,A.auditState
+                       ,A.auditResult
+                       ,A.auditTime
+                  FROM  FileInfo  A
+                 WHERE  A.auditState = '1'
+                 ORDER  BY A.createTime DESC
+                          ,A.goodCount  DESC
+                          ,A.userID
+                ]]>
+            </content>
+            
+            <result>
+                <row>org.hy.microservice.file.FileInfo</row>
+                <cfill>setter(colValue)</cfill>
+            </result>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_QueryImages_ByAll"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                SELECT  A.id  
+                       ,A.serviceType
+                       ,A.type   
+                       ,A.deviceNo 
+                       ,A.deviceType 
+                       ,A.userID    
+                       ,A.userName  
+                       ,A.userIcon
+                       ,A.fileSize
+                       ,A.goodCount 
+                       ,(
+                         SELECT  COUNT(1)
+                           FROM  tbl_base_userNiceLog  SA
+                          WHERE  SA.userID   = A.userID
+                            AND  SA.niceID   = A.id
+                            AND  SA.niceType = A.serviceType
+                        )    AS  myIsNice
+                       ,A.url  
+                       ,A.path
+                       ,A.groupID
+                       ,A.groupInfo  
+                       ,A.isShow   
+                       ,A.createTime
+                       ,A.auditState
+                       ,A.auditResult
+                       ,A.auditTime
+                       ,A.width
+                       ,A.height
+                  FROM  FileInfo  A
+                 WHERE  A.auditState = '1'
+                 ORDER  BY A.createTime DESC
+                          ,A.goodCount  DESC
+                          ,A.userID
+                ]]>
+            </content>
+            
+            <result>
+                <row>org.hy.microservice.file.ImageInfo</row>
+                <cfill>setter(colValue)</cfill>
+            </result>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_QueryVideos_ByAll"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                SELECT  A.id  
+                       ,A.serviceType
+                       ,A.type   
+                       ,A.deviceNo 
+                       ,A.deviceType 
+                       ,A.userID    
+                       ,A.userName  
+                       ,A.userIcon
+                       ,A.fileSize
+                       ,A.goodCount 
+                       ,(
+                         SELECT  COUNT(1)
+                           FROM  tbl_base_userNiceLog  SA
+                          WHERE  SA.userID   = A.userID
+                            AND  SA.niceID   = A.id
+                            AND  SA.niceType = A.serviceType
+                        )    AS  myIsNice
+                       ,A.url  
+                       ,A.path
+                       ,A.groupID
+                       ,A.groupInfo  
+                       ,A.isShow   
+                       ,A.createTime
+                       ,A.auditState
+                       ,A.auditResult
+                       ,A.auditTime
+                       ,A.width
+                       ,A.height
+                       ,A.thumbnailFileID
+                  FROM  FileInfo  A
+                 WHERE  A.auditState = '1'
+                 ORDER  BY A.createTime DESC
+                          ,A.goodCount  DESC
+                          ,A.userID
+                ]]>
+            </content>
+            
+            <result>
+                <row>org.hy.microservice.file.VideoInfo</row>
+                <cfill>setter(colValue)</cfill>
+            </result>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_QueryFile_ByID"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                SELECT  A.id  
+                       ,A.serviceType
+                       ,A.type   
+                       ,A.deviceNo 
+                       ,A.deviceType 
+                       ,A.userID    
+                       ,A.userName  
+                       ,A.userIcon
+                       ,A.fileSize
+                       ,A.goodCount 
+                       ,(
+                         SELECT  COUNT(1)
+                           FROM  tbl_base_userNiceLog  SA
+                          WHERE  SA.userID   = A.userID
+                            AND  SA.niceID   = A.id
+                            AND  SA.niceType = A.serviceType
+                        )    AS  myIsNice
+                       ,A.url  
+                       ,A.path
+                       ,A.groupID
+                       ,A.groupInfo  
+                       ,A.isShow   
+                       ,A.createTime
+                       ,A.auditState
+                       ,A.auditResult
+                       ,A.auditTime
+                  FROM  FileInfo  A
+                 WHERE  A.id = ':id'
+                ]]>
+            </content>
+            
+            <result>
+                <row>org.hy.microservice.file.FileInfo</row>
+                <cfill>setter(colValue)</cfill>
+            </result>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_QueryImage_ByID"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                SELECT  A.id  
+                       ,A.serviceType
+                       ,A.type   
+                       ,A.deviceNo 
+                       ,A.deviceType 
+                       ,A.userID    
+                       ,A.userName  
+                       ,A.userIcon
+                       ,A.fileSize
+                       ,A.goodCount 
+                       ,(
+                         SELECT  COUNT(1)
+                           FROM  tbl_base_userNiceLog  SA
+                          WHERE  SA.userID   = A.userID
+                            AND  SA.niceID   = A.id
+                            AND  SA.niceType = A.serviceType
+                        )    AS  myIsNice
+                       ,A.url  
+                       ,A.path
+                       ,A.groupID
+                       ,A.groupInfo  
+                       ,A.isShow   
+                       ,A.createTime
+                       ,A.auditState
+                       ,A.auditResult
+                       ,A.auditTime
+                       ,A.width
+                       ,A.height
+                  FROM  FileInfo  A
+                 WHERE  A.id = ':id'
+                ]]>
+            </content>
+            
+            <result>
+                <row>org.hy.microservice.file.ImageInfo</row>
+                <cfill>setter(colValue)</cfill>
+            </result>
+            
+        </sql>
+        
+        
+        
+        <sql id="XSQL_FileInfo_QueryVideo_ByID"> 
+        
+            <dataSourceGroup ref="DSG_MS_File" />
+            
+            <content>
+                <![CDATA[
+                SELECT  A.id  
+                       ,A.serviceType
+                       ,A.type   
+                       ,A.deviceNo 
+                       ,A.deviceType 
+                       ,A.userID    
+                       ,A.userName  
+                       ,A.userIcon
+                       ,A.fileSize
+                       ,A.goodCount 
+                       ,(
+                         SELECT  COUNT(1)
+                           FROM  tbl_base_userNiceLog  SA
+                          WHERE  SA.userID   = A.userID
+                            AND  SA.niceID   = A.id
+                            AND  SA.niceType = A.serviceType
+                        )    AS  myIsNice
+                       ,A.url  
+                       ,A.path
+                       ,A.groupID
+                       ,A.groupInfo  
+                       ,A.isShow   
+                       ,A.createTime
+                       ,A.auditState
+                       ,A.auditResult
+                       ,A.auditTime
+                       ,A.width
+                       ,A.height
+                       ,A.thumbnailFileID
+                  FROM  FileInfo  A
+                 WHERE  A.id = ':id'
+                ]]>
+            </content>
+            
+            <result>
+                <row>org.hy.microservice.file.VideoInfo</row>
+                <cfill>setter(colValue)</cfill>
+            </result>
+            
+        </sql>
+        
+    </sqls>
+    
+</config>

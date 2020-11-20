@@ -39,28 +39,17 @@ public class FileInfo extends BaseViewMode
     /** 文件大小 */
     private Long    fileSize;
     
-    /** 点赞次数 */
-    private Long    goodCount;
-    
-    /** 我是否点赞过 */
-    private Integer myIsNice; 
     
     
-    
-    public String getGoodCountInfo()
-    {
-        return toCountInfo(this.goodCount);
-    }
-    
-    
-    
-    public void setGoodCountInfo(String i_GoodCountInfo)
-    {
-        // Nothing.
-    }
-    
-    
-    
+    /**
+     * 配合富文本编辑器的使用，用于返回值的传递
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2020-10-19
+     * @version     v1.0
+     *
+     * @param i_Location
+     */
     public void setLocation(String i_Location)
     {
         this.url = i_Location;
@@ -128,24 +117,6 @@ public class FileInfo extends BaseViewMode
 
 
     /**
-     * 获取：点赞次数
-     */
-    public Long getGoodCount()
-    {
-        return goodCount;
-    }
-
-    
-    /**
-     * 获取：我是否点赞过
-     */
-    public Integer getMyIsNice()
-    {
-        return myIsNice;
-    }
-
-    
-    /**
      * 设置：主键ID
      * 
      * @param id 
@@ -200,28 +171,6 @@ public class FileInfo extends BaseViewMode
     }
 
 
-    /**
-     * 设置：点赞次数
-     * 
-     * @param goodCount 
-     */
-    public void setGoodCount(Long goodCount)
-    {
-        this.goodCount = goodCount;
-    }
-
-    
-    /**
-     * 设置：我是否点赞过
-     * 
-     * @param myIsNice 
-     */
-    public void setMyIsNice(Integer myIsNice)
-    {
-        this.myIsNice = myIsNice;
-    }
-
-    
     /**
      * 获取：文件大小
      */

@@ -42,7 +42,6 @@ public class FileService
         io_File.setServiceType(Help.NVL(io_File.getServiceType() ,"-"));
         io_File.setType(io_File.getType() == null ? 0 : io_File.getType());
         io_File.setAuditState("1");
-        io_File.setGoodCount(0L);
         
         return this.fileDAO.addFile(io_File) == 1;
     }
@@ -65,7 +64,6 @@ public class FileService
         io_Image.setServiceType(Help.NVL(io_Image.getServiceType() ,"-"));
         io_Image.setType(1);
         io_Image.setAuditState("1");
-        io_Image.setGoodCount(0L);
         
         return this.fileDAO.addImage(io_Image) == 1;
     }
@@ -88,43 +86,8 @@ public class FileService
         io_Video.setServiceType(Help.NVL(io_Video.getServiceType() ,"-"));
         io_Video.setType(2);
         io_Video.setAuditState("1");
-        io_Video.setGoodCount(0L);
         
         return this.fileDAO.addVideo(io_Video) == 1;
-    }
-    
-    
-    
-    /**
-     * 更新点赞（加）
-     * 
-     * @author      ZhengWei(HY)
-     * @createDate  2020-10-16
-     * @version     v1.0
-     *
-     * @param i_File
-     * @return
-     */
-    public boolean goodCountAdd(FileInfo i_File)
-    {
-        return this.fileDAO.goodCountAdd(i_File) == 1;
-    }
-    
-    
-    
-    /**
-     * 更新点赞（减）
-     * 
-     * @author      ZhengWei(HY)
-     * @createDate  2020-10-16
-     * @version     v1.0
-     *
-     * @param i_File
-     * @return
-     */
-    public boolean goodCountSubtract(FileInfo i_File)
-    {
-        return this.fileDAO.goodCountSubtract(i_File) == 1;
     }
     
     

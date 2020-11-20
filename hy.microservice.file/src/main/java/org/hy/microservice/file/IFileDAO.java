@@ -68,36 +68,6 @@ public interface IFileDAO
     
     
     /**
-     * 更新点赞（加）
-     * 
-     * @author      ZhengWei(HY)
-     * @createDate  2020-10-16
-     * @version     v1.0
-     *
-     * @param i_File
-     * @return
-     */
-    @Xsql("XSQL_FileInfo_Update_GoodCount_Add")
-    public int goodCountAdd(FileInfo i_File);
-    
-    
-    
-    /**
-     * 更新点赞（减）
-     * 
-     * @author      ZhengWei(HY)
-     * @createDate  2020-10-16
-     * @version     v1.0
-     *
-     * @param i_File
-     * @return
-     */
-    @Xsql("XSQL_FileInfo_Update_GoodCount_Subtract")
-    public int goodCountSubtract(FileInfo i_File);
-    
-    
-    
-    /**
      * 获取所有视频列表
      * 
      * @author      ZhengWei(HY)

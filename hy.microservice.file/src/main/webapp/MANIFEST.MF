@@ -1,0 +1,5 @@
+Manifest-Version: 1.0.0
+Created-By: HY.ZhengWei@qq.com  2020
+Specification-Version: 1.0.0  2020-11-20
+SourceCode: https://github.com/HY-ZhengWei/hy.microservice.file
+Build-JDK: 1.8

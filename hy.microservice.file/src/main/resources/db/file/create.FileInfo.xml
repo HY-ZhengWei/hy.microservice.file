@@ -28,7 +28,6 @@
                 ,userName         VARCHAR(128)                      COMMENT '用户名称'
                 ,userIcon         VARCHAR(1000)                     COMMENT '用户头像路径'
                 ,fileSize         BIGINT          NOT NULL          COMMENT '文件大小'
-                ,goodCount        INT             NOT NULL          COMMENT '点赞次数'
                 ,url              VARCHAR(2000)   NOT NULL          COMMENT '文件地址'
                 ,path             VARCHAR(2000)   NOT NULL          COMMENT '文件保存的路径（全路径）'
                 ,groupID          VARCHAR(64)     NOT NULL          COMMENT '分组编号'

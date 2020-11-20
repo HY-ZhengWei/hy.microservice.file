@@ -27,7 +27,6 @@
                        ,userName  
                        ,userIcon
                        ,fileSize
-                       ,goodCount 
                        ,url  
                        ,path
                        ,groupID
@@ -48,7 +47,6 @@
                        ,':userName'
                        ,':userIcon'
                        ,':fileSize'
-                       ,':goodCount'
                        ,':url'
                        ,':path'
                        ,':groupID'
@@ -83,7 +81,6 @@
                        ,userName  
                        ,userIcon
                        ,fileSize
-                       ,goodCount 
                        ,url  
                        ,path
                        ,groupID
@@ -106,7 +103,6 @@
                        ,':userName'
                        ,':userIcon'
                        ,':fileSize'
-                       ,':goodCount'
                        ,':url'
                        ,':path'
                        ,':groupID'
@@ -143,7 +139,6 @@
                        ,userName  
                        ,userIcon
                        ,fileSize
-                       ,goodCount 
                        ,url  
                        ,path
                        ,groupID
@@ -167,7 +162,6 @@
                        ,':userName'
                        ,':userIcon'
                        ,':fileSize'
-                       ,':goodCount'
                        ,':url'
                        ,':path'
                        ,':groupID'
@@ -181,38 +175,6 @@
                        ,':height'
                        ,':thumbnailFileID'
                        )
-                ]]>
-            </content>
-            
-        </sql>
-        
-        
-        
-        <sql id="XSQL_FileInfo_Update_GoodCount_Add"> 
-        
-            <dataSourceGroup ref="DSG_MS_File" />
-            
-            <content>
-                <![CDATA[
-                UPDATE  FileInfo
-                   SET  goodCount = goodCount + 1
-                 WHERE  id        = ':id'
-                ]]>
-            </content>
-            
-        </sql>
-        
-        
-        
-        <sql id="XSQL_FileInfo_Update_GoodCount_Subtract"> 
-        
-            <dataSourceGroup ref="DSG_MS_File" />
-            
-            <content>
-                <![CDATA[
-                UPDATE  FileInfo
-                   SET  goodCount = goodCount - 1
-                 WHERE  id        = ':id'
                 ]]>
             </content>
             
@@ -235,14 +197,6 @@
                        ,A.userName  
                        ,A.userIcon
                        ,A.fileSize
-                       ,A.goodCount 
-                       ,(
-                         SELECT  COUNT(1)
-                           FROM  tbl_base_userNiceLog  SA
-                          WHERE  SA.userID   = A.userID
-                            AND  SA.niceID   = A.id
-                            AND  SA.niceType = A.serviceType
-                        )    AS  myIsNice
                        ,A.url  
                        ,A.path
                        ,A.groupID
@@ -255,7 +209,6 @@
                   FROM  FileInfo  A
                  WHERE  A.auditState = '1'
                  ORDER  BY A.createTime DESC
-                          ,A.goodCount  DESC
                           ,A.userID
                 ]]>
             </content>
@@ -284,14 +237,6 @@
                        ,A.userName  
                        ,A.userIcon
                        ,A.fileSize
-                       ,A.goodCount 
-                       ,(
-                         SELECT  COUNT(1)
-                           FROM  tbl_base_userNiceLog  SA
-                          WHERE  SA.userID   = A.userID
-                            AND  SA.niceID   = A.id
-                            AND  SA.niceType = A.serviceType
-                        )    AS  myIsNice
                        ,A.url  
                        ,A.path
                        ,A.groupID
@@ -306,7 +251,6 @@
                   FROM  FileInfo  A
                  WHERE  A.auditState = '1'
                  ORDER  BY A.createTime DESC
-                          ,A.goodCount  DESC
                           ,A.userID
                 ]]>
             </content>
@@ -335,14 +279,6 @@
                        ,A.userName  
                        ,A.userIcon
                        ,A.fileSize
-                       ,A.goodCount 
-                       ,(
-                         SELECT  COUNT(1)
-                           FROM  tbl_base_userNiceLog  SA
-                          WHERE  SA.userID   = A.userID
-                            AND  SA.niceID   = A.id
-                            AND  SA.niceType = A.serviceType
-                        )    AS  myIsNice
                        ,A.url  
                        ,A.path
                        ,A.groupID
@@ -358,7 +294,6 @@
                   FROM  FileInfo  A
                  WHERE  A.auditState = '1'
                  ORDER  BY A.createTime DESC
-                          ,A.goodCount  DESC
                           ,A.userID
                 ]]>
             </content>
@@ -387,14 +322,6 @@
                        ,A.userName  
                        ,A.userIcon
                        ,A.fileSize
-                       ,A.goodCount 
-                       ,(
-                         SELECT  COUNT(1)
-                           FROM  tbl_base_userNiceLog  SA
-                          WHERE  SA.userID   = A.userID
-                            AND  SA.niceID   = A.id
-                            AND  SA.niceType = A.serviceType
-                        )    AS  myIsNice
                        ,A.url  
                        ,A.path
                        ,A.groupID
@@ -433,14 +360,6 @@
                        ,A.userName  
                        ,A.userIcon
                        ,A.fileSize
-                       ,A.goodCount 
-                       ,(
-                         SELECT  COUNT(1)
-                           FROM  tbl_base_userNiceLog  SA
-                          WHERE  SA.userID   = A.userID
-                            AND  SA.niceID   = A.id
-                            AND  SA.niceType = A.serviceType
-                        )    AS  myIsNice
                        ,A.url  
                        ,A.path
                        ,A.groupID
@@ -481,14 +400,6 @@
                        ,A.userName  
                        ,A.userIcon
                        ,A.fileSize
-                       ,A.goodCount 
-                       ,(
-                         SELECT  COUNT(1)
-                           FROM  tbl_base_userNiceLog  SA
-                          WHERE  SA.userID   = A.userID
-                            AND  SA.niceID   = A.id
-                            AND  SA.niceType = A.serviceType
-                        )    AS  myIsNice
                        ,A.url  
                        ,A.path
                        ,A.groupID

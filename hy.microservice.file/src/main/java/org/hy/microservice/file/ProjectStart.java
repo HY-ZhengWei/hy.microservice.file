@@ -4,6 +4,7 @@ import org.hy.common.xml.plugins.XJavaSpringAnnotationConfigServletWebServerAppl
 import org.hy.common.xml.plugins.analyse.AnalyseObjectServlet;
 import org.hy.common.xml.plugins.analyse.AnalyseServerServlet;
 import org.hy.common.xml.plugins.analyse.AnalysesServlet;
+import org.hy.microservice.file.common.VueServlet;
 import org.hy.microservice.file.config.XJavaSpringInitialzer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -60,6 +61,23 @@ public class ProjectStart extends SpringBootServletInitializer
         i_Application.setApplicationContextClass(XJavaSpringAnnotationConfigServletWebServerApplicationContext.class);
         
         return (WebApplicationContext) i_Application.run();
+    }
+    
+    
+    
+    /**
+     * 注册Vue独立处理机制
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2020-11-20
+     * @version     v1.0
+     *
+     * @return
+     */
+    @Bean
+    public ServletRegistrationBean<VueServlet> vueServlet()
+    {
+        return new ServletRegistrationBean<VueServlet>(new VueServlet() ,"/ms/*");
     }
     
     

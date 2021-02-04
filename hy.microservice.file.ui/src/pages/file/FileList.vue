@@ -222,7 +222,7 @@ export default {
          */
         loadListDatas()
         {
-            this.$post('/mwcBase/no/merchant/list',
+            this.$post('/hxy/e/warning/queryList',
                     {
                         corpname:     this.queryKey,
                         startIndex:  (this.pagination.page - 1) * this.pagination.limit,
@@ -230,6 +230,7 @@ export default {
                     })
                     .then(res =>
                     {
+                        console.log('列表数据', res)
                         console.log('列表数据', res.datas)
                         console.log('分页数据', res.total)
                         this.tableDatas       = res.datas;

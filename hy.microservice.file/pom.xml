@@ -113,6 +113,20 @@
             <version>8.0.22</version>
         </dependency>
         
+        <!-- https://github.com/HY-ZhengWei/hy.common.base -->
+        <dependency>
+            <groupId>org</groupId>
+            <artifactId>hy.common.base</artifactId>
+            <version>1.0.156</version>
+        </dependency>
+        
+        <!-- https://github.com/HY-ZhengWei/hy.common.xjava -->
+        <dependency>
+            <groupId>org</groupId>
+            <artifactId>hy.common.xjava</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+        
         <!-- https://github.com/HY-ZhengWei/hy.common.video -->
         <dependency>
             <groupId>org</groupId>

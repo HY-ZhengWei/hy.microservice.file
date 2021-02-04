@@ -9,6 +9,11 @@ module.exports = {
                 pathRewrite: {
                     '^/msFileApi': ''
                 }
+            },
+            '/hxy/': {
+                target: 'http://dj9wbr.natappfree.cc',
+                changeOrigin: true,                             // 是否跨域
+                secure: true                                   // 如果是https接口，需要配置这个参数
             }
         },
     }

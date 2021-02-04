@@ -1,6 +1,6 @@
 package org.hy.microservice.file;
 
-import org.hy.microservice.file.common.BaseViewMode;
+import org.hy.microservice.common.BaseViewMode;
 
 
 

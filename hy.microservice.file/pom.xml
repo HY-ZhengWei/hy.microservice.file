@@ -5,7 +5,7 @@
     
     <groupId>org</groupId>
     <artifactId>hy.microservice.file</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>war</packaging>                        <!-- Tomcat 启动Spring Boot Add ZhengWei(HY) 2019-01-13 -->
     
     <developers>
@@ -19,6 +19,7 @@
     
     <name>hy.microservice.file</name>
     <url>https://github.com/HY-ZhengWei/hy.microservice.file</url>
+    <!-- https://gitee.com/HY-ZhengWei/hy.microservice.file -->
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -94,6 +95,11 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
         
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+        
         <!-- jdbc -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -114,6 +120,7 @@
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.base -->
+        <!-- https://gitee.com/HY-ZhengWei/hy.common.base -->
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.base</artifactId>
@@ -121,24 +128,27 @@
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.license -->
+        <!-- https://gitee.com/HY-ZhengWei/hy.common.license -->
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.license</artifactId>
-            <version>1.1.1</version>
+            <version>1.1.2</version>
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.xjava -->
+        <!-- https://gitee.com/HY-ZhengWei/hy.common.xjava -->
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.xjava</artifactId>
-            <version>4.1.1</version>
+            <version>4.1.2</version>
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.video -->
+        <!-- https://gitee.com/HY-ZhengWei/hy.common.video -->
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.video</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </dependency>
         
         <dependency>

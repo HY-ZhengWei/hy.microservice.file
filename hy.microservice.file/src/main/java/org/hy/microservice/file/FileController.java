@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,8 @@ public class FileController
     /**
      * 获取视频页面
      * 
+     * 测试URL： http://127.0.0.1/hy.microservice.file/file/getVideo/立库/*.page?reLoad=1&control=0
+     * 
      * @author      ZhengWei(HY)
      * @createDate  2021-06-18
      * @version     v1.0
@@ -89,13 +92,15 @@ public class FileController
      * @return
      * @throws UnsupportedEncodingException
      */
-    @RequestMapping(value={"/getVideo/{*}/{fileName:.+}","/{fileName:.+}"})
+    @RequestMapping(value={"/getVideo/**/{fileName:.+}","/{fileName:.+}"})
     public String getVideo(@PathVariable String fileName
                           ,@RequestParam(value="image"        ,required=false) String i_Image
                           ,@RequestParam(value="width"        ,required=false) String i_Width
                           ,@RequestParam(value="height"       ,required=false) String i_Height
                           ,@RequestParam(value="auto"         ,required=false) String i_Auto
                           ,@RequestParam(value="loopPlayback" ,required=false) String i_LoopPlayback
+                          ,@RequestParam(value="reLoad"       ,required=false) String i_IsReLoad
+                          ,@RequestParam(value="control"      ,required=false) String i_IsControl
                           ,ModelMap io_Model
                           ,HttpServletRequest i_Request
                           ,HttpServletResponse i_Response) throws UnsupportedEncodingException
@@ -124,6 +129,8 @@ public class FileController
         io_Model.put("videoHeight"       ,Help.NVL(i_Height ,"100%"));
         io_Model.put("videoAuto"         ,Help.NVL(i_Auto ,"0"));
         io_Model.put("videoLoopPlayback" ,Help.NVL(i_LoopPlayback ,"0"));
+        io_Model.put("videoReLoad"       ,Help.NVL(i_IsReLoad ,"0"));
+        io_Model.put("videoControl"      ,Help.NVL(i_IsControl ,"1"));
         io_Model.put("videoImage"        ,Help.NVL(i_Image));
         io_Model.put("videoUrl"          ,new String(Base64Factory.getIntance().encode(v_M3U8) ,"UTF-8"));
         
@@ -139,13 +146,18 @@ public class FileController
      * @createDate  2020-11-12
      * @version     v1.0
      *              v2.0  2021-06-18  升级：改为支持M3U8的视频显示
+     * 
      *
      * @param fileName
      * @param i_Request
      * @return
      */
-    @RequestMapping(value={"/showVideo/{*}/{fileName:.+}","/{fileName:.+}"})
-    public void showVideo(@PathVariable String fileName ,@RequestParam(value="token" ,required=false) String i_Token ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
+    @RequestMapping(value={"/showVideo/**/{fileName:.+}","/{fileName:.+}"})
+    public void showVideo(@PathVariable String fileName
+                         ,@RequestParam(value="token" ,required=false) String i_Token
+                         ,@RequestParam(value="of"    ,required=false) String i_OFile
+                         ,HttpServletRequest i_Request
+                         ,HttpServletResponse i_Response)
     {
         i_Response.setHeader("Access-Control-Allow-Origin"      ,"*");     // 支持跨域请求
         i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");  // 支持cookie跨域
@@ -156,10 +168,32 @@ public class FileController
         
         try
         {
+            if ( Help.isNull(fileName) )
+            {
+                return;
+            }
+            
             String v_RequestURI = i_Request.getRequestURI();
             if ( v_RequestURI.contains("showVideo/") )
             {
                 fileName = v_RequestURI.split("showVideo/")[1];
+            }
+            fileName = URLDecoder.decode(fileName, "UTF-8");
+            
+            String [] v_Finds = fileName.split("\\*");
+            if ( v_Finds.length == 2 )
+            {
+                File v_VideoRootDir = new File(fileServiceSaveDir.getValue() + StringHelp.replaceAll(fileName ,"*" + v_Finds[1] ,"") );
+                File v_LastTimeFile = null;
+                do
+                {
+                    v_LastTimeFile = FileHelp.findLastModified(v_VideoRootDir ,null ,v_Finds[1] ,true);
+                    if ( v_LastTimeFile != null )
+                    {
+                        fileName = StringHelp.replaceAll(v_LastTimeFile.toString() ,fileServiceSaveDir.getValue() ,"");
+                    }
+                }
+                while ( !Help.isNull(i_OFile) && v_LastTimeFile != null && fileName.indexOf(i_OFile) > 0 );
             }
             
             File   v_VideoFile = new File(fileServiceSaveDir.getValue() + fileName);
@@ -182,7 +216,7 @@ public class FileController
             if ( v_RequestURI.toLowerCase().endsWith(".m3u8") )
             {
                 String v_M3U8Content = v_FileHelp.getContent(v_VideoFile ,"UTF-8" ,true);
-                v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,"http://127.0.0.1" ,i_Request.getScheme() + "://" + i_Request.getServerName() + (i_Request.getServerPort() == 80 ? "" : ":" + i_Request.getServerPort()));
+                v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,"http://127.0.0.1/msFile" ,i_Request.getScheme() + "://" + i_Request.getServerName() + (i_Request.getServerPort() == 80 ? "" : ":" + i_Request.getServerPort()) + "/" + v_RequestURI.split("/")[1]);
                 v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,".ts" ,".ts?token=" + i_Token);
                 
                 byte [] v_M3U8Byte = v_M3U8Content.getBytes();
@@ -234,7 +268,7 @@ public class FileController
      * @param i_Request
      * @return
      */
-    @RequestMapping(value={"/play/{*}/{fileName:.+}","/{fileName:.+}"})
+    @RequestMapping(value={"/play/**/{fileName:.+}","/{fileName:.+}"})
     public void paly(@PathVariable String fileName ,@RequestParam(value="token" ,required=false) String i_Token ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
     {
         i_Response.setHeader("Access-Control-Allow-Origin"      ,"*");     // 支持跨域请求
@@ -258,6 +292,7 @@ public class FileController
             {
                 fileName = v_RequestURI.split("play/")[1];
             }
+            fileName = URLDecoder.decode(fileName, "UTF-8");
             
             File   v_VideoFile = new File(fileServiceSaveDir.getValue() + fileName);
             String v_VideoName = v_VideoFile.getName();
@@ -287,6 +322,8 @@ public class FileController
             {
                 v_VideoOut.write(v_VideoBuffer ,0 ,v_BufferLen);
             }
+            
+            $Logger.info("播放视频：" + fileServiceSaveDir.getValue() + fileName);
         }
         catch (Exception e)
         {
@@ -330,7 +367,7 @@ public class FileController
      * @param i_Request
      * @return
      */
-    @RequestMapping(value={"/showImage/{*}/{fileName:.+}","/{fileName:.+}"}, produces={"image/jpeg" ,"image/png" ,"image/gif" ,"application/x-jpg"})
+    @RequestMapping(value={"/showImage/**/{fileName:.+}","/{fileName:.+}"}, produces={"image/jpeg" ,"image/png" ,"image/gif" ,"application/x-jpg"})
     @ResponseBody
     public ResponseEntity<Resource> showImage(@PathVariable String fileName ,HttpServletRequest i_Request)
     {
@@ -341,6 +378,7 @@ public class FileController
             {
                 fileName = v_RequestURI.split("showImage/")[1];
             }
+            fileName = URLDecoder.decode(fileName, "UTF-8");
             
             // resourceLoader.getResource("file:" + uploadPicturePath + fileName) 返回指定路径的资源句柄，这里返回的就是URL [file:D:/springboot/upload/test.png]
             // ResponseEntity.ok(T) 返回指定内容主体
@@ -365,7 +403,7 @@ public class FileController
      * @param i_Request
      * @return
      */
-    @RequestMapping(value={"/showExcel/{*}/{fileName:.+}","/{fileName:.+}"}, produces={"application/vnd.ms-excel" ,"application/x-xls"})
+    @RequestMapping(value={"/showExcel/**/{fileName:.+}","/{fileName:.+}"}, produces={"application/vnd.ms-excel" ,"application/x-xls"})
     @ResponseBody
     public ResponseEntity<Resource> showExcel(@PathVariable String fileName ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
     {
@@ -376,6 +414,7 @@ public class FileController
             {
                 fileName = v_RequestURI.split("showExcel/")[1];
             }
+            fileName = URLDecoder.decode(fileName, "UTF-8");
             
             // 设置附加文件名。转码是为了防止文件名称中文时乱码的情况
             i_Response.setHeader("Content-Disposition" ,"attachment;filename=" + StringHelp.toCharEncoding(fileName ,"UTF-8" ,"ISO-8859-1"));
@@ -402,7 +441,7 @@ public class FileController
      * @param i_Request
      * @return
      */
-    @RequestMapping(value={"/showWord/{*}/{fileName:.+}","/{fileName:.+}"}, produces={"application/msword"})
+    @RequestMapping(value={"/showWord/**/{fileName:.+}","/{fileName:.+}"}, produces={"application/msword"})
     @ResponseBody
     public ResponseEntity<Resource> showWord(@PathVariable String fileName ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
     {
@@ -413,6 +452,7 @@ public class FileController
             {
                 fileName = v_RequestURI.split("showWord/")[1];
             }
+            fileName = URLDecoder.decode(fileName, "UTF-8");
             
             // 设置附加文件名。转码是为了防止文件名称中文时乱码的情况
             i_Response.setHeader("Content-Disposition" ,"attachment;filename=" + StringHelp.toCharEncoding(fileName ,"UTF-8" ,"ISO-8859-1"));
@@ -439,7 +479,7 @@ public class FileController
      * @param i_Request
      * @return
      */
-    @RequestMapping(value={"/showPPT/{*}/{fileName:.+}","/{fileName:.+}"}, produces={"application/vnd.ms-powerpoint" ,"application/x-ppt"})
+    @RequestMapping(value={"/showPPT/**/{fileName:.+}","/{fileName:.+}"}, produces={"application/vnd.ms-powerpoint" ,"application/x-ppt"})
     @ResponseBody
     public ResponseEntity<Resource> showPPT(@PathVariable String fileName ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
     {
@@ -450,6 +490,7 @@ public class FileController
             {
                 fileName = v_RequestURI.split("showPPT/")[1];
             }
+            fileName = URLDecoder.decode(fileName, "UTF-8");
             
             // 设置附加文件名。转码是为了防止文件名称中文时乱码的情况
             i_Response.setHeader("Content-Disposition" ,"attachment;filename=" + StringHelp.toCharEncoding(fileName ,"UTF-8" ,"ISO-8859-1"));
@@ -476,7 +517,7 @@ public class FileController
      * @param i_Request
      * @return
      */
-    @RequestMapping(value={"/showFile/{*}/{fileName:.+}","/{fileName:.+}"}, produces={"application/octet-stream"})
+    @RequestMapping(value={"/showFile/**/{fileName:.+}","/{fileName:.+}"}, produces={"application/octet-stream"})
     @ResponseBody
     public ResponseEntity<Resource> showFile(@PathVariable String fileName ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
     {
@@ -487,6 +528,7 @@ public class FileController
             {
                 fileName = v_RequestURI.split("showFile/")[1];
             }
+            fileName = URLDecoder.decode(fileName, "UTF-8");
             
             // 设置附加文件名。转码是为了防止文件名称中文时乱码的情况
             i_Response.setHeader("Content-Disposition" ,"attachment;filename=" + StringHelp.toCharEncoding(fileName ,"UTF-8" ,"ISO-8859-1"));

@@ -6,7 +6,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>视频播放</title>
     
-    <link href="${ctx}/video/video-js.css" rel="stylesheet">
+    <link rel="stylesheet" href="${ctx}/video/video-js.css" />
+    <link rel="stylesheet" href="${ctx}/bootstrap-4.3.1-dist/css/bootstrap.min.css" />
     
     <script type="text/javascript" charset="utf-8" src="${ctx}/jquery/jquery.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="${ctx}/video/video.min.js"></script>
@@ -25,13 +26,97 @@
         top: 0;
         left: 0;
         opacity: 0;
+        z-index: 99;
+    }
+    
+    #loadingBar {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .spinner {
+      margin: 100px auto;
+      width: 50px;
+      height: 60px;
+      text-align: center;
+      font-size: 10px;
+    }
+     
+    .spinner > div {
+      height: 100%;
+      width: 6px;
+      display: inline-block;
+       
+      -webkit-animation: stretchdelay 1.2s infinite ease-in-out;
+      animation: stretchdelay 1.2s infinite ease-in-out;
+    }
+    
+    .spinner .rect1 {
+        background-color: #E74C3C;
+    }
+     
+    .spinner .rect2 {
+        background-color: #A569BD;
+      -webkit-animation-delay: -1.1s;
+      animation-delay: -1.1s;
+    }
+     
+    .spinner .rect3 {
+        background-color: #5DADE2;
+      -webkit-animation-delay: -1.0s;
+      animation-delay: -1.0s;
+    }
+     
+    .spinner .rect4 {
+        background-color: #45B39D;
+      -webkit-animation-delay: -0.9s;
+      animation-delay: -0.9s;
+    }
+     
+    .spinner .rect5 {
+        background-color: #F5B041;
+      -webkit-animation-delay: -0.8s;
+      animation-delay: -0.8s;
+    }
+     
+    @-webkit-keyframes stretchdelay {
+      0%, 40%, 100% { -webkit-transform: scaleY(0.4) } 
+      20% { -webkit-transform: scaleY(1.0) }
+    }
+     
+    @keyframes stretchdelay {
+      0%, 40%, 100% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+      }  20% {
+        transform: scaleY(1.0);
+        -webkit-transform: scaleY(1.0);
+      }
     }
     </style>
 </head>
 <body>
-    <video id="myvideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"
+    <video id="myvideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
            poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page">
     </video>
+    
+    <div id="loadingBar">
+        <div class="spinner">
+          <div class="rect1"></div>
+          <div class="rect2"></div>
+          <div class="rect3"></div>
+          <div class="rect4"></div>
+          <div class="rect5"></div>
+        </div>
+    </div>
     
     
     
@@ -42,11 +127,14 @@
         var v_VideoSrc    = "${videoUrl}";
         var v_IsAuto      = "${videoAuto}";
         var v_IsLoop      = "${videoLoopPlayback}";
+        var v_IsReload    = "${videoReLoad}";
+        var v_IsControl   = "${videoControl}";
         
         
         $(document).ready(function()
         {
-            getVideoUrl(videoInit ,'myvideo' ,v_IsAuto ,v_IsLoop ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
+            hideVideoLoading();
+            getVideoUrl(videoInit ,'myvideo' ,v_IsAuto ,v_IsLoop ,v_IsReload ,v_IsControl ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
         });
     
     </script>

@@ -43,7 +43,7 @@
             
             <item id="MS_File_SaveDir">
                 <name>MS_File_SaveDir</name>
-                <value>/opt/apache-tomcat-9.0.30/webapps/msFile/upload/</value>
+                <value>C:\迅雷下载\</value>
                 <comment>文件服务的本地保存目录</comment>
             </item>
             

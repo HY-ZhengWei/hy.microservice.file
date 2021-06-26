@@ -11,7 +11,7 @@
     
     <script type="text/javascript" charset="utf-8" src="${ctx}/jquery/jquery.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="${ctx}/video/video.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="${ctx}/video/hy.common.video.js"></script>
+    <script type="text/javascript" charset="utf-8" src="${ctx}/video/hy.common.video.one.js"></script>
     
     <style type="text/css">
     body { 
@@ -104,7 +104,7 @@
     </style>
 </head>
 <body>
-    <video id="myvideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
+    <video id="HYVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
            poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page">
     </video>
     
@@ -134,7 +134,7 @@
         $(document).ready(function()
         {
             hideVideoLoading();
-            getVideoUrl(videoInit ,'myvideo' ,v_IsAuto ,v_IsLoop ,v_IsReload ,v_IsControl ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
+            getVideoUrl(videoInit ,'HYVideo' ,v_IsAuto ,v_IsLoop ,v_IsReload ,v_IsControl ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
         });
     
     </script>

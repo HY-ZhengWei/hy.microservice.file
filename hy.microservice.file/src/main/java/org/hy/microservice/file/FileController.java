@@ -99,8 +99,9 @@ public class FileController
                           ,@RequestParam(value="height"       ,required=false) String i_Height
                           ,@RequestParam(value="auto"         ,required=false) String i_Auto
                           ,@RequestParam(value="loopPlayback" ,required=false) String i_LoopPlayback
-                          ,@RequestParam(value="reLoad"       ,required=false) String i_IsReLoad
                           ,@RequestParam(value="control"      ,required=false) String i_IsControl
+                          ,@RequestParam(value="reLoad"       ,required=false) String i_IsReLoad
+                          ,@RequestParam(value="atob"         ,required=false) String i_IsAtoB
                           ,ModelMap io_Model
                           ,HttpServletRequest i_Request
                           ,HttpServletResponse i_Response) throws UnsupportedEncodingException
@@ -134,7 +135,14 @@ public class FileController
         io_Model.put("videoImage"        ,Help.NVL(i_Image));
         io_Model.put("videoUrl"          ,new String(Base64Factory.getIntance().encode(v_M3U8) ,"UTF-8"));
         
-        return "/video/video";
+        if ( "1".equals(i_IsAtoB) )
+        {
+            return "/video/videoMore";
+        }
+        else
+        {
+            return "/video/videoOne";
+        }
     }
     
     

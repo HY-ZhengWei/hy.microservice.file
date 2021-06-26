@@ -22,8 +22,6 @@ function showVideoLoading()
 
 
 
-
-
 /**
  * 获取视频信息
  *
@@ -38,8 +36,6 @@ function hideVideoLoading()
 {
     $('#loadingBar').hide();
 }
-
-
 
 
 
@@ -162,6 +158,9 @@ function videoInit(i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i_IsControl ,i_Wid
         i_Height = $(window).height();
     }
     
+    $('#loadingBar').width(i_Width);
+    $('#loadingBar').height(i_Height);
+    
     let v_Video = videojs(i_VideoID
     ,{
         width: i_Width,
@@ -191,7 +190,6 @@ function videoInit(i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i_IsControl ,i_Wid
                 reloadVideo(this ,i_VideoReloadUrl);
             }
         });
-        
     });
     
     v_Video.src({type: 'application/x-mpegURL', src: i_VideoUrl});

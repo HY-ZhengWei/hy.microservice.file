@@ -26,22 +26,15 @@ function changeNextVideoShow()
         return;
     }  
     
-    hideVideoLoading();
     readyNext = false;
-
+    
     if ( nextVideo === HYVideoA )
     {
-        $('#HYVideoA').show();
-        $('#HYVideoB').hide();
-        
         HYVideoA.play();
         HYVideoB.pause();
     }
     else
     {
-        $('#HYVideoB').show();
-        $('#HYVideoA').hide();
-        
         HYVideoB.play();
         HYVideoA.pause();
     }
@@ -106,8 +99,6 @@ function reloadVideo(i_VideoObj ,i_VideoUrl)
     /* 请求成功回调函数 */
     xhr.onload = function(e) 
     {
-        hideVideoLoading();
-        
         if (this.status == 200) 
         {
             let v_HeaderFileName = this.getResponseHeader("Content-Disposition");
@@ -213,8 +204,7 @@ function videoInit(i_VideoID ,i_IsAuto ,i_IsControl ,i_Width ,i_Height ,i_VideoU
         liveui: true,
         controlBar: {
             fullscreenToggle: true
-        },
-        playbackRates: [0.5, 1, 1.5, 2]      /* 倍速播放配置 */
+        }
      }
     ,function onPlayerReady() 
     {
@@ -222,6 +212,21 @@ function videoInit(i_VideoID ,i_IsAuto ,i_IsControl ,i_Width ,i_Height ,i_VideoU
         {
             this.play();
         }
+        
+        this.on("playing", function()
+        {
+            hideVideoLoading();
+            if ( 'HYVideoB' === i_VideoID )
+            {
+                $('#HYVideoB').show();
+                $('#HYVideoA').hide();
+            }
+            else
+            {
+                $('#HYVideoA').show();
+                $('#HYVideoB').hide();
+            }
+        });
         
         this.on('ended', function() 
         {

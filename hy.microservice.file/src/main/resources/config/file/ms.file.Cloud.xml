@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+
+    <import name="xconfig"         class="java.util.ArrayList" />
+    <import name="servers"         class="java.util.ArrayList" />
+    <import name="server"          class="org.hy.common.net.ClientSocket" />
+    
+    
+    
+    <!-- 云计算服务器配置信息 -->
+    <xconfig>
+        
+        <!-- 工业云主备的服务列表 -->
+        <!-- 支持动态增、减服务器，重新动态加载本配置文件即可，无须重启服务器，也无须重启集群 -->
+        <servers id="IndustryServers" this="IndustryServers">
+            
+            <call name="clear" />
+            
+            <server>
+                <constructor>
+                    <String>10.1.20.27</String>
+                    <int>2021</int>
+                </constructor>
+            </server>
+            
+            <server>
+                <constructor>
+                    <String>10.1.85.27</String>
+                    <int>2021</int>
+                </constructor>
+            </server>
+            
+        </servers>
+        
+    </xconfig>
+    
+</config>

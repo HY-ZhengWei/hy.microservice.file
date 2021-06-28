@@ -4,7 +4,7 @@ var HYVideoA  = null;
 var HYVideoB  = null;
 var nextVideo = null;
 var readyNext = false;
-var readyOK   = false;
+var readyOK   = true;
 
 
 
@@ -28,7 +28,6 @@ function changeNextVideoShow()
     
     hideVideoLoading();
     readyNext = false;
-    readyOK   = false;
 
     if ( nextVideo === HYVideoA )
     {
@@ -96,11 +95,13 @@ function hideVideoLoading()
  */
 function reloadVideo(i_VideoObj ,i_VideoUrl)
 {
-    readyOK = false;
+    readyNext = true;
+    readyOK   = false;
     
     var xhr = new XMLHttpRequest();
     /* 配置请求方式、请求地址以及是否同步 */
-    xhr.open('POST', window.atob(i_VideoUrl) + '?of=' + ofile, true);
+    xhr.open('POST', window.atob(i_VideoUrl) + '&of=' + ofile, true);
+    xhr.setRequestHeader('Access-Control-Allow-Headers' ,'Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token ,Content-Disposition');
     xhr.responseType = 'blob';
     /* 请求成功回调函数 */
     xhr.onload = function(e) 
@@ -109,7 +110,9 @@ function reloadVideo(i_VideoObj ,i_VideoUrl)
         
         if (this.status == 200) 
         {
-            let v_HeaderFileName = this.getResponseHeader("Content-Disposition") ;
+            let v_HeaderFileName = this.getResponseHeader("Content-Disposition");
+            console.log('Header' ,v_HeaderFileName);
+            console.log('HYFile' ,this.getResponseHeader("HYFileName"));
             if ( v_HeaderFileName )
             {
                 ofile = decodeURI(v_HeaderFileName.replace('attachment;filename=',''));
@@ -134,8 +137,6 @@ function reloadVideo(i_VideoObj ,i_VideoUrl)
  *
  * @param i_VideoID   视频对象ID
  * @param i_IsAuto    是否自动播放
- * @param i_IsLoop    是否循环播放
- * @param i_IsReload  是否重新请求播放资源
  * @param i_IsControl 是否允许控制视频
  * @param i_Width     宽度
  * @param i_Height    高度
@@ -145,7 +146,7 @@ function reloadVideo(i_VideoObj ,i_VideoUrl)
  * @createDate  2021-06-22
  * @version     v1.0
  */
-function getVideoUrl(i_CallBackFun ,i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i_IsControl ,i_Width ,i_Height ,i_VideoUrl)
+function getVideoUrl(i_CallBackFun ,i_VideoID ,i_IsAuto ,i_IsControl ,i_Width ,i_Height ,i_VideoUrl)
 {
     var xhr = new XMLHttpRequest();
     /* 配置请求方式、请求地址以及是否同步 */
@@ -168,7 +169,7 @@ function getVideoUrl(i_CallBackFun ,i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i
 
             if ( i_CallBackFun != null )
             { 
-                i_CallBackFun(i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i_IsControl ,i_Width ,i_Height ,v_VideoUrl ,i_VideoUrl);
+                i_CallBackFun(i_VideoID ,i_IsAuto ,i_IsControl ,i_Width ,i_Height ,v_VideoUrl ,i_VideoUrl);
             }
         }
     };
@@ -182,8 +183,6 @@ function getVideoUrl(i_CallBackFun ,i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i
  *
  * @param i_VideoID   视频对象ID
  * @param i_IsAuto    是否自动播放
- * @param i_IsLoop    是否循环播放
- * @param i_IsReload  是否重新请求播放资源
  * @param i_IsControl 是否允许控制视频
  * @param i_Width     宽度
  * @param i_Height    高度
@@ -193,7 +192,7 @@ function getVideoUrl(i_CallBackFun ,i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i
  * @createDate  2021-06-22
  * @version     v1.0
  */
-function videoInit(i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i_IsControl ,i_Width ,i_Height ,i_VideoUrl ,i_VideoReloadUrl)
+function videoInit(i_VideoID ,i_IsAuto ,i_IsControl ,i_Width ,i_Height ,i_VideoUrl ,i_VideoReloadUrl)
 {
     if ( i_Width == "100%" )
     {
@@ -226,19 +225,13 @@ function videoInit(i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i_IsControl ,i_Wid
         
         this.on('ended', function() 
         {
-            if ( i_IsLoop == "1" )
-            { 
-                this.play();
-            }
-            
             setTimeout(changeNextVideoShow , 50);
         });
         
         this.on('timeupdate' ,function()
         {
-            if ( !readyNext && (this.currentTime() / this.duration()) >= 0.75 )
+            if ( readyOK && !readyNext && (this.currentTime() / this.duration()) >= 0.63 )
             {
-                readyNext = true;
                 if ( nextVideo == null )
                 {
                     nextVideo = HYVideoB;

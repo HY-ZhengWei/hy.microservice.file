@@ -36,14 +36,14 @@
             
             <item id="MS_File_WebURL">
                 <name>MS_File_WebURL</name>
-                <value>https://www.dadeyuntu.com/msFile</value>
+                <value>http://127.0.0.1/hy.microservice.file</value>
                 <comment>文件(包括图片、视频)服务的域名如：https://www.zzz.com</comment>
             </item>
             
             
             <item id="MS_File_SaveDir">
                 <name>MS_File_SaveDir</name>
-                <value>C:\迅雷下载\</value>
+                <value>C:\WorkSpace\hy.microservice.file\hy.microservice.file\src\main\webapp\video\</value>
                 <comment>文件服务的本地保存目录</comment>
             </item>
             

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -81,7 +82,8 @@ public class FileController
     /**
      * 获取视频页面
      * 
-     * 测试URL： http://127.0.0.1/hy.microservice.file/file/getVideo/立库/*.page?reLoad=1&control=0
+     * 测试URL： http://127.0.0.1/hy.microservice.file/file/getVideo/demoVideo/*.page?atob=2
+     * 测试URL： https://industry.wzyb.com.cn/msFile/file/getVideo/LiKu/*.page?atob=2
      * 
      * @author      ZhengWei(HY)
      * @createDate  2021-06-18
@@ -101,13 +103,13 @@ public class FileController
                           ,@RequestParam(value="loopPlayback" ,required=false) String i_LoopPlayback
                           ,@RequestParam(value="control"      ,required=false) String i_IsControl
                           ,@RequestParam(value="reLoad"       ,required=false) String i_IsReLoad
-                          ,@RequestParam(value="atob"         ,required=false) String i_IsAtoB
+                          ,@RequestParam(value="atob"         ,required=false) String i_AtoB
                           ,ModelMap io_Model
                           ,HttpServletRequest i_Request
                           ,HttpServletResponse i_Response) throws UnsupportedEncodingException
     {
-        i_Response.setHeader("Access-Control-Allow-Origin"      ,"*");     // 支持跨域请求
-        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");  // 支持cookie跨域
+        i_Response.setHeader("Access-Control-Allow-Origin"      ,i_Request.getHeader("Origin"));  // 支持跨域请求
+        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");                         // 支持cookie跨域
         i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
         i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token");
         
@@ -124,7 +126,12 @@ public class FileController
             fileName = v_RequestURI.split("getVideo/")[1];
         }
         
-        String v_M3U8 = v_ServerHome + "/file/showVideo/" + StringHelp.replaceAll(fileName ,".page" ,".m3u8");
+        String v_Token = StringHelp.getUUID();
+        String v_M3U8  = v_ServerHome + "/file/showVideo/" + StringHelp.replaceAll(fileName ,".page" ,".m3u8") + "?token=" + v_Token;
+        if ( "2".equals(i_AtoB) )
+        {
+            v_M3U8 += "&live=1";
+        }
         
         io_Model.put("videoWidth"        ,Help.NVL(i_Width ,"100%"));
         io_Model.put("videoHeight"       ,Help.NVL(i_Height ,"100%"));
@@ -135,7 +142,11 @@ public class FileController
         io_Model.put("videoImage"        ,Help.NVL(i_Image));
         io_Model.put("videoUrl"          ,new String(Base64Factory.getIntance().encode(v_M3U8) ,"UTF-8"));
         
-        if ( "1".equals(i_IsAtoB) )
+        if ( "2".equals(i_AtoB) )
+        {
+            return "/video/videoLive";
+        }
+        else if ( "1".equals(i_AtoB) )
         {
             return "/video/videoMore";
         }
@@ -163,14 +174,16 @@ public class FileController
     @RequestMapping(value={"/showVideo/**/{fileName:.+}","/{fileName:.+}"})
     public void showVideo(@PathVariable String fileName
                          ,@RequestParam(value="token" ,required=false) String i_Token
+                         ,@RequestParam(value="live"  ,required=false) String i_Live
                          ,@RequestParam(value="of"    ,required=false) String i_OFile
                          ,HttpServletRequest i_Request
                          ,HttpServletResponse i_Response)
     {
-        i_Response.setHeader("Access-Control-Allow-Origin"      ,"*");     // 支持跨域请求
-        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");  // 支持cookie跨域
+        i_Response.setHeader("Access-Control-Allow-Origin"      ,i_Request.getHeader("Origin"));  // 支持跨域请求
+        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");                         // 支持cookie跨域
         i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
-        i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token");
+        i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token ,Content-Disposition");
+        i_Response.setHeader("Access-Control-Expose-Headers"    ,"Content-Disposition");
         
         OutputStream v_VideoOut = null;
         
@@ -188,26 +201,57 @@ public class FileController
             }
             fileName = URLDecoder.decode(fileName, "UTF-8");
             
+            // 配对最新的视频（预防重复视频的显示，及阻塞等待的功能）
             String [] v_Finds = fileName.split("\\*");
             if ( v_Finds.length == 2 )
             {
-                File v_VideoRootDir = new File(fileServiceSaveDir.getValue() + StringHelp.replaceAll(fileName ,"*" + v_Finds[1] ,"") );
-                File v_LastTimeFile = null;
-                do
+                String v_OFile = (String)i_Request.getSession().getAttribute("OFile" + i_Token);
+                if ( !Help.isNull(v_OFile) && Help.isNull(i_OFile) )
                 {
-                    v_LastTimeFile = FileHelp.findLastModified(v_VideoRootDir ,null ,v_Finds[1] ,true);
+                    i_OFile = v_OFile;
+                }
+                
+                File    v_VideoRootDir = new File(fileServiceSaveDir.getValue() + StringHelp.replaceAll(fileName ,"*" + v_Finds[1] ,"") );
+                File    v_LastTimeFile = null;
+                boolean v_Continue     = true;
+                
+                if ( !Help.isNull(i_Token) && "1".equals(i_Live) )
+                {
+                    v_LastTimeFile = FileHelp.findLastName(v_VideoRootDir ,null ,v_Finds[1] ,true);
                     if ( v_LastTimeFile != null )
                     {
                         fileName = StringHelp.replaceAll(v_LastTimeFile.toString() ,fileServiceSaveDir.getValue() ,"");
                     }
                 }
-                while ( !Help.isNull(i_OFile) && v_LastTimeFile != null && fileName.indexOf(i_OFile) > 0 );
+                else
+                {
+                    do
+                    {
+                        v_LastTimeFile = FileHelp.findLastName(v_VideoRootDir ,null ,v_Finds[1] ,true);
+                        if ( v_LastTimeFile != null )
+                        {
+                            fileName = StringHelp.replaceAll(v_LastTimeFile.toString() ,fileServiceSaveDir.getValue() ,"");
+                        }
+                        
+                        if ( v_LastTimeFile == null || (!Help.isNull(i_OFile) && fileName.indexOf(i_OFile) > 0) )
+                        {
+                            Thread.sleep(50);
+                        }
+                        else
+                        {
+                            v_Continue = false;
+                        }
+                        
+                    }
+                    while ( v_Continue );
+                }
             }
             
             File   v_VideoFile = new File(fileServiceSaveDir.getValue() + fileName);
             String v_VideoName = v_VideoFile.getName();
             String v_UserAgent = i_Request.getHeader("User-Agent").toLowerCase();
             
+            i_Request.getSession().setAttribute("OFile" + i_Token ,v_VideoName);
             // 如果是火狐浏览器的话，设置浏览器的编码格式
             if ( v_UserAgent.indexOf("firefox") != -1 )
             {
@@ -217,15 +261,54 @@ public class FileController
             {
                 i_Response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(v_VideoName, "UTF-8"));
             }
+            i_Response.addHeader("HYFileName" ,v_VideoName);
+            i_Response.addCookie(new Cookie("HYFileName" ,v_VideoName));
      
             
             FileHelp v_FileHelp = new FileHelp();
-            
             if ( v_RequestURI.toLowerCase().endsWith(".m3u8") )
             {
                 String v_M3U8Content = v_FileHelp.getContent(v_VideoFile ,"UTF-8" ,true);
                 v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,"http://127.0.0.1/msFile" ,i_Request.getScheme() + "://" + i_Request.getServerName() + (i_Request.getServerPort() == 80 ? "" : ":" + i_Request.getServerPort()) + "/" + v_RequestURI.split("/")[1]);
                 v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,".ts" ,".ts?token=" + i_Token);
+                
+                // 多人分镜的直播流处理
+                if ( !Help.isNull(i_Token) && "1".equals(i_Live) )
+                {
+                    v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,"#EXT-X-ENDLIST" ,"");
+                    Integer v_M3U8Sequence = 0;
+                    String  v_OldFileName  = "";
+                    boolean v_IsNew        = true;
+                    
+                    synchronized ( this )
+                    {
+                        v_OldFileName  = (String) i_Request.getSession().getAttribute(i_Token + "_FileName");
+                        v_M3U8Sequence = (Integer)i_Request.getSession().getAttribute(i_Token + "_Sequence");
+                        
+                        v_IsNew = !v_VideoName.equals(v_OldFileName);
+                        if ( v_M3U8Sequence == null || v_M3U8Sequence < 0 )
+                        {
+                            v_M3U8Sequence = 0;
+                        }
+                        else
+                        {
+                            if ( v_IsNew )
+                            {
+                                v_M3U8Sequence += 1;
+                            }
+                        }
+                        i_Request.getSession().setAttribute(i_Token + "_FileName" ,v_VideoName);
+                        i_Request.getSession().setAttribute(i_Token + "_Sequence" ,v_M3U8Sequence);
+                    }
+                    
+                    String v_FindKey = "#EXT-X-MEDIA-SEQUENCE:";
+                    int    v_SIndex  = v_M3U8Content.indexOf(v_FindKey);
+                    int    v_EIndex  = v_M3U8Content.indexOf("\r\n" ,v_SIndex + v_FindKey.length());
+                    
+                    v_M3U8Content = v_M3U8Content.substring(0 ,v_SIndex + v_FindKey.length())
+                                  + v_M3U8Sequence
+                                  + v_M3U8Content.substring(v_EIndex);
+                }
                 
                 byte [] v_M3U8Byte = v_M3U8Content.getBytes();
                 i_Response.addHeader("Content-Length", "" + v_M3U8Byte.length);
@@ -242,7 +325,7 @@ public class FileController
                 v_VideoOut.write(v_VideoByte);
             }
             
-            $Logger.info("访问视频：" + fileServiceSaveDir.getValue() + fileName);
+            $Logger.info("访问视频：" + fileServiceSaveDir.getValue() + fileName + "\tof=" + i_OFile);
         }
         catch (Exception e)
         {
@@ -279,8 +362,8 @@ public class FileController
     @RequestMapping(value={"/play/**/{fileName:.+}","/{fileName:.+}"})
     public void paly(@PathVariable String fileName ,@RequestParam(value="token" ,required=false) String i_Token ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
     {
-        i_Response.setHeader("Access-Control-Allow-Origin"      ,"*");     // 支持跨域请求
-        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");  // 支持cookie跨域
+        i_Response.setHeader("Access-Control-Allow-Origin"      ,i_Request.getHeader("Origin"));  // 支持跨域请求
+        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");                         // 支持cookie跨域
         i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
         i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token");
         

@@ -11,7 +11,7 @@
     
     <script type="text/javascript" charset="utf-8" src="${ctx}/jquery/jquery.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="${ctx}/video/video.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="${ctx}/video/hy.common.video.more.js"></script>
+    <script type="text/javascript" charset="utf-8" src="${ctx}/video/hy.common.video.live.js"></script>
     
     <style type="text/css">
     body { 
@@ -21,20 +21,12 @@
         padding: 0px;
     }
     
-    #HYVideoA {
+    #myvideo {
         position: absolute;
-        top: 0px;
-        left: 0px;
-        opacity: 1;
+        top: 0;
+        left: 0;
+        opacity: 0;
         z-index: 99;
-    }
-    
-    #HYVideoB {
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        opacity: 1;
-        z-index: 98;
     }
     
     #loadingBar {
@@ -112,11 +104,7 @@
     </style>
 </head>
 <body>
-    <video id="HYVideoA" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
-           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page">
-    </video>
-    
-    <video id="HYVideoB" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
+    <video id="HYVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
            poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page">
     </video>
     
@@ -144,8 +132,7 @@
         $(document).ready(function()
         {
             hideVideoLoading();
-            getVideoUrl(videoInit ,'HYVideoA' ,v_IsAuto ,v_IsControl ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
-            getVideoUrl(videoInit ,'HYVideoB' ,false    ,v_IsControl ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
+            getVideoUrl(videoInit ,'HYVideo' ,v_IsAuto ,v_IsControl ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
         });
     
     </script>

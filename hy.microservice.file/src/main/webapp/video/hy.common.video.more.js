@@ -92,10 +92,30 @@ function reloadVideo(i_VideoObj ,i_VideoUrl)
     readyOK   = false;
     
     var xhr = new XMLHttpRequest();
+
+    xhr.addEventListener('timeout', function(e) 
+    {
+        console.log('超时，请重试');
+        reloadVideo(i_VideoObj ,i_VideoUrl);
+    });
+    
+    xhr.addEventListener('error', function(e) 
+    {
+        console.log('异常，请重试');
+        reloadVideo(i_VideoObj ,i_VideoUrl);
+    });
+    
+    xhr.addEventListener('abort', function(e) 
+    {
+        console.log('中断，请重试');
+        reloadVideo(i_VideoObj ,i_VideoUrl);
+    });
+
     /* 配置请求方式、请求地址以及是否同步 */
     xhr.open('POST', window.atob(i_VideoUrl) + '&of=' + ofile, true);
     xhr.setRequestHeader('Access-Control-Allow-Headers' ,'Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token ,Content-Disposition');
     xhr.responseType = 'blob';
+    xhr.timeout = 15000; /* 超时时间，单位是毫秒 */
     /* 请求成功回调函数 */
     xhr.onload = function(e) 
     {
@@ -118,6 +138,7 @@ function reloadVideo(i_VideoObj ,i_VideoUrl)
             readyOK = true;
         }
     };
+    
     xhr.send();
 }
 

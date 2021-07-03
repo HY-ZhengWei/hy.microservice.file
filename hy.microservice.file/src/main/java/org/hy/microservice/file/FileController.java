@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -108,8 +107,8 @@ public class FileController
                           ,HttpServletRequest i_Request
                           ,HttpServletResponse i_Response) throws UnsupportedEncodingException
     {
-        i_Response.setHeader("Access-Control-Allow-Origin"      ,i_Request.getHeader("Origin"));  // 支持跨域请求
-        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");                         // 支持cookie跨域
+        i_Response.setHeader("Access-Control-Allow-Origin"      ,"*");              // 支持跨域请求 i_Request.getHeader("Origin")
+        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");           // 支持cookie跨域
         i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
         i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token");
         
@@ -179,8 +178,8 @@ public class FileController
                          ,HttpServletRequest i_Request
                          ,HttpServletResponse i_Response)
     {
-        i_Response.setHeader("Access-Control-Allow-Origin"      ,i_Request.getHeader("Origin"));  // 支持跨域请求
-        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");                         // 支持cookie跨域
+        i_Response.setHeader("Access-Control-Allow-Origin"      ,"*");              // 支持跨域请求 i_Request.getHeader("Origin")
+        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");           // 支持cookie跨域
         i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
         i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token ,Content-Disposition");
         i_Response.setHeader("Access-Control-Expose-Headers"    ,"Content-Disposition");
@@ -262,7 +261,6 @@ public class FileController
                 i_Response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(v_VideoName, "UTF-8"));
             }
             i_Response.addHeader("HYFileName" ,v_VideoName);
-            i_Response.addCookie(new Cookie("HYFileName" ,v_VideoName));
      
             
             FileHelp v_FileHelp = new FileHelp();
@@ -362,8 +360,8 @@ public class FileController
     @RequestMapping(value={"/play/**/{fileName:.+}","/{fileName:.+}"})
     public void paly(@PathVariable String fileName ,@RequestParam(value="token" ,required=false) String i_Token ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
     {
-        i_Response.setHeader("Access-Control-Allow-Origin"      ,i_Request.getHeader("Origin"));  // 支持跨域请求
-        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");                         // 支持cookie跨域
+        i_Response.setHeader("Access-Control-Allow-Origin"      ,"*");              // 支持跨域请求 i_Request.getHeader("Origin")
+        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");           // 支持cookie跨域
         i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
         i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token");
         

@@ -113,11 +113,11 @@
 </head>
 <body>
     <video id="HYVideoA" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
-           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page">
+           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page" disablePictureInPicture>
     </video>
     
     <video id="HYVideoB" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
-           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page">
+           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page" disablePictureInPicture>
     </video>
     
     <div id="loadingBar">

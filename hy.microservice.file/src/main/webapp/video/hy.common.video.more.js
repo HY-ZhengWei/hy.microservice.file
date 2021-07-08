@@ -275,6 +275,15 @@ function videoInit(i_VideoID ,i_IsAuto ,i_IsControl ,i_Width ,i_Height ,i_VideoU
             }
         });
         
+        this.on('enterpictureinpicture' ,function()
+        {
+            console.log('Video entered Picture-in-Picture mode.');
+        });
+        
+        this.on('leavepictureinpicture' ,function()
+        {
+            console.log('Video left Picture-in-Picture mode.');
+        });
     });
     
     if ( i_VideoID === 'HYVideoA' )

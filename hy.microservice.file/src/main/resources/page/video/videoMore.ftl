@@ -113,11 +113,11 @@
 </head>
 <body>
     <video id="HYVideoA" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
-           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page" disablePictureInPicture>
+           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page" disablePictureInPicture <#if videoSizeFit == 'fill' >style="object-fit: fill"</#if>>
     </video>
     
     <video id="HYVideoB" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
-           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page" disablePictureInPicture>
+           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page" disablePictureInPicture <#if videoSizeFit == 'fill' >style="object-fit: fill"</#if>>
     </video>
     
     <div id="loadingBar">
@@ -134,18 +134,19 @@
     
     <script language="javascript">
        
-        var v_VideoWidth  = "${videoWidth}";
-        var v_VideoHeight = "${videoHeight}";
-        var v_VideoSrc    = "${videoUrl}";
-        var v_IsAuto      = "${videoAuto}";
-        var v_IsControl   = "${videoControl}";
+        var v_VideoWidth   = "${videoWidth}";
+        var v_VideoHeight  = "${videoHeight}";
+        var v_VideoSizeFit = "${videoSizeFit}";
+        var v_VideoSrc     = "${videoUrl}";
+        var v_IsAuto       = "${videoAuto}";
+        var v_IsControl    = "${videoControl}";
         
         
         $(document).ready(function()
         {
             hideVideoLoading();
             getVideoUrl(videoInit ,'HYVideoA' ,v_IsAuto ,v_IsControl ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
-            getVideoUrl(videoInit ,'HYVideoB' ,false    ,v_IsControl ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
+            getVideoUrl(videoInit ,'HYVideoB' ,"0"      ,v_IsControl ,v_VideoWidth ,v_VideoHeight ,v_VideoSrc);
         });
     
     </script>

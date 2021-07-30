@@ -98,6 +98,7 @@ public class FileController
                           ,@RequestParam(value="image"        ,required=false) String i_Image
                           ,@RequestParam(value="width"        ,required=false) String i_Width
                           ,@RequestParam(value="height"       ,required=false) String i_Height
+                          ,@RequestParam(value="sizeFit"      ,required=false) String i_SizeFit
                           ,@RequestParam(value="auto"         ,required=false) String i_Auto
                           ,@RequestParam(value="loopPlayback" ,required=false) String i_LoopPlayback
                           ,@RequestParam(value="control"      ,required=false) String i_IsControl
@@ -132,14 +133,17 @@ public class FileController
             v_M3U8 += "&live=1";
         }
         
-        io_Model.put("videoWidth"        ,Help.NVL(i_Width ,"100%"));
-        io_Model.put("videoHeight"       ,Help.NVL(i_Height ,"100%"));
+        io_Model.put("videoWidth"        ,Help.NVL(i_Width   ,"100%"));
+        io_Model.put("videoHeight"       ,Help.NVL(i_Height  ,"100%"));
+        io_Model.put("videoSizeFit"      ,Help.NVL(i_SizeFit ,"none"));    // fill表示填充满
         io_Model.put("videoAuto"         ,Help.NVL(i_Auto ,"0"));
         io_Model.put("videoLoopPlayback" ,Help.NVL(i_LoopPlayback ,"0"));
         io_Model.put("videoReLoad"       ,Help.NVL(i_IsReLoad ,"0"));
         io_Model.put("videoControl"      ,Help.NVL(i_IsControl ,"1"));
         io_Model.put("videoImage"        ,Help.NVL(i_Image));
         io_Model.put("videoUrl"          ,new String(Base64Factory.getIntance().encode(v_M3U8) ,"UTF-8"));
+        
+        $Logger.info("打开视频页面：" + v_M3U8);
         
         if ( "2".equals(i_AtoB) )
         {

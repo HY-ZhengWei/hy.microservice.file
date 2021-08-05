@@ -105,7 +105,7 @@
 </head>
 <body>
     <video id="HYVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
-           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page">
+           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page" <#if videoSizeFit == 'fill' >style="object-fit: fill"</#if>>
     </video>
     
     <div id="loadingBar">

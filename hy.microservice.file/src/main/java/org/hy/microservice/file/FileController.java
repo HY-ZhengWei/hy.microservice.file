@@ -130,7 +130,13 @@ public class FileController
         String v_M3U8  = v_ServerHome + "/file/showVideo/" + StringHelp.replaceAll(fileName ,".page" ,".m3u8") + "?token=" + v_Token;
         if ( "2".equals(i_AtoB) )
         {
+            // 通过SDK直取摄像设备上的视频数据转成的HLS流
             v_M3U8 += "&live=1";
+        }
+        else if ( "3".equals(i_AtoB) )
+        {
+            // FFMpeg直接将RTSP转成的HLS流
+            v_M3U8 += "&live=2";
         }
         
         io_Model.put("videoWidth"        ,Help.NVL(i_Width   ,"100%"));
@@ -145,7 +151,7 @@ public class FileController
         
         $Logger.info("打开视频页面：" + v_M3U8);
         
-        if ( "2".equals(i_AtoB) )
+        if ( "2".equals(i_AtoB) || "3".equals(i_AtoB) )
         {
             return "/video/videoLive";
         }
@@ -218,7 +224,7 @@ public class FileController
                 File    v_LastTimeFile = null;
                 boolean v_Continue     = true;
                 
-                if ( !Help.isNull(i_Token) && "1".equals(i_Live) )
+                if ( "1".equals(i_Live) || "2".equals(i_Live) )
                 {
                     v_LastTimeFile = FileHelp.findLastName(v_VideoRootDir ,null ,v_Finds[1] ,true);
                     if ( v_LastTimeFile != null )
@@ -271,11 +277,34 @@ public class FileController
             if ( v_RequestURI.toLowerCase().endsWith(".m3u8") )
             {
                 String v_M3U8Content = v_FileHelp.getContent(v_VideoFile ,"UTF-8" ,true);
-                v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,"http://127.0.0.1/msFile" ,i_Request.getScheme() + "://" + i_Request.getServerName() + (i_Request.getServerPort() == 80 ? "" : ":" + i_Request.getServerPort()) + "/" + v_RequestURI.split("/")[1]);
+                v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,"http://127.0.0.1/msFile" ,i_Request.getScheme() + "://" + i_Request.getServerName() + (i_Request.getServerPort() == 80 || i_Request.getServerPort() == 443 ? "" : ":" + i_Request.getServerPort()) + "/" + v_RequestURI.split("/")[1]);
                 v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,".ts" ,".ts?token=" + i_Token);
                 
-                // 多人分镜的直播流处理
-                if ( !Help.isNull(i_Token) && "1".equals(i_Live) )
+                // 直播流：FFMpeg直接将RTSP转成的HLS流
+                if ( "2".equals(i_Live) )
+                {
+                    StringBuilder v_M3U8Buffer = new StringBuilder();
+                    String []     v_M3U8CArr   = v_M3U8Content.split("\n");
+                    int           v_FRootIndex = fileName.lastIndexOf(Help.getSysPathSeparator());
+                    String        v_FRoot      = fileName.substring(0 ,v_FRootIndex);
+                    
+                    for (String v_Line : v_M3U8CArr)
+                    {
+                        if ( StringHelp.isContains(v_Line ,".ts") )
+                        {
+                            v_Line = i_Request.getScheme() + "://" + i_Request.getServerName() + (i_Request.getServerPort() == 80 || i_Request.getServerPort() == 443 ? "" : ":" + i_Request.getServerPort())
+                                   + "/" + v_RequestURI.split("/")[1]
+                                   + "/file/play/" + v_FRoot + "/"
+                                   + v_Line;
+                        }
+                        
+                        v_M3U8Buffer.append(v_Line).append("\n");
+                    }
+                    
+                    v_M3U8Content = v_M3U8Buffer.toString();
+                }
+                // 直播流：通过SDK直取摄像设备上的视频数据转成的HLS流
+                else if ( "1".equals(i_Live) )
                 {
                     v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,"#EXT-X-ENDLIST" ,"");
                     Integer v_M3U8Sequence = 0;
@@ -327,7 +356,7 @@ public class FileController
                 v_VideoOut.write(v_VideoByte);
             }
             
-            $Logger.info("访问视频：" + fileServiceSaveDir.getValue() + fileName + "\tof=" + i_OFile);
+            $Logger.info("访问视频：" + fileServiceSaveDir.getValue() + ":" + fileName + "\tof=" + i_OFile);
         }
         catch (Exception e)
         {

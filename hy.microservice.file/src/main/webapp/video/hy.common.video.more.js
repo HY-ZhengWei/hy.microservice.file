@@ -91,15 +91,6 @@ function reloadVideo(i_VideoObj ,i_VideoUrl)
     readyNext = true;
     readyOK   = false;
     
-    if ( v_IsControl == "9" )
-    {
-        console.log('Debug: reloadVideo');
-        i_VideoObj.src({type: 'application/x-mpegURL', src: window.atob(i_VideoUrl)});
-        i_VideoObj.load();
-        readyOK = true;
-        return;
-    }
-    
     var xhr = new XMLHttpRequest();
 
     xhr.addEventListener('timeout', function(e) 
@@ -169,16 +160,6 @@ function reloadVideo(i_VideoObj ,i_VideoUrl)
  */
 function getVideoUrl(i_CallBackFun ,i_VideoID ,i_IsAuto ,i_IsControl ,i_Width ,i_Height ,i_VideoUrl)
 {
-    if ( v_IsControl == "9" )
-    {
-        console.log('Debug: getVideoUrl');
-        if ( i_CallBackFun != null )
-        { 
-            i_CallBackFun(i_VideoID ,i_IsAuto ,i_IsControl ,i_Width ,i_Height ,window.atob(i_VideoUrl) ,i_VideoUrl);
-        }
-        return;
-    }
-
     var xhr = new XMLHttpRequest();
     /* 配置请求方式、请求地址以及是否同步 */
     xhr.open('POST', window.atob(i_VideoUrl), true);

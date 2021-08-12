@@ -119,7 +119,9 @@ public class FileController
             return "";
         }
         
-        String v_ServerHome = i_Request.getScheme() + "://" + i_Request.getServerName() + "/" + v_RequestURI.split("/")[1];
+        String v_ServerHome = i_Request.getScheme() + "://" + i_Request.getServerName()
+                            + (i_Request.getServerPort() == 80 || i_Request.getServerPort() == 443 ? "" : ":" + i_Request.getServerPort())
+                            + "/" + v_RequestURI.split("/")[1];
         
         if ( v_RequestURI.contains("getVideo/") )
         {
@@ -127,7 +129,7 @@ public class FileController
         }
         
         String v_Token = StringHelp.getUUID();
-        String v_M3U8  = v_ServerHome + "/file/showVideo/" + StringHelp.replaceAll(fileName ,".page" ,".m3u8") + "?token=" + v_Token;
+        String v_M3U8  = v_ServerHome + "/file/showVideo/" + StringHelp.replaceAll(fileName ,".page" ,".m3u8") + "?token=" + v_Token + "&control=" + Help.NVL(i_IsControl ,"1");
         if ( "2".equals(i_AtoB) )
         {
             // 通过SDK直取摄像设备上的视频数据转成的HLS流
@@ -348,6 +350,8 @@ public class FileController
                 
                 v_VideoOut = i_Response.getOutputStream();
                 v_VideoOut.write(v_M3U8Byte);
+                
+                $Logger.info("访问视频：" + v_M3U8Content);
             }
             else
             {
@@ -360,6 +364,8 @@ public class FileController
         }
         catch (Exception e)
         {
+            // 此处不用关闭
+            /*
             if ( null != v_VideoOut )
             {
                 try
@@ -372,6 +378,7 @@ public class FileController
                     e1.printStackTrace();
                 }
             }
+            */
             
             $Logger.error(e);
         }
@@ -461,11 +468,12 @@ public class FileController
                 }
             }
             
+            // 此处不用关闭
+            /*
             if ( null != v_VideoOut )
             {
                 try
                 {
-                    v_VideoOut.flush();
                     v_VideoOut.close();
                 }
                 catch (IOException e1)
@@ -473,6 +481,7 @@ public class FileController
                     e1.printStackTrace();
                 }
             }
+            */
         }
     }
     

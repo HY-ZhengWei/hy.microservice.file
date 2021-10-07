@@ -822,7 +822,7 @@ public class FileController
                             v_GifName = v_GifName.toLowerCase() + ".gif";
                             String    v_GifPath = v_SaveDir + v_GifName;
                             double    v_WHDiff  = Help.subtract(v_Video.getWidth() ,v_Video.getHeight());
-                            boolean   v_GifRet  = VideoHelp.toGif(v_OutFile.toString() ,v_GifPath ,10 * 24 ,v_WHDiff >= 0 ? "480x320" : "320x480");
+                            boolean   v_GifRet  = VideoHelp.toGif(v_OutFile.toString() ,v_GifPath ,5 * 24 ,v_WHDiff >= 0 ? "480x320" : "320x480");
                             
                             if ( v_GifRet )
                             {

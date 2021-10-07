@@ -140,7 +140,7 @@
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.xjava</artifactId>
-            <version>4.1.2</version>
+            <version>4.1.3</version>
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.video -->

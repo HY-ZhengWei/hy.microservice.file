@@ -740,8 +740,6 @@ public class FileController
                         //获取文件输入流
                         InputStream in = mf.getInputStream();
                         
-                        $Logger.info(v_FileName);
-                        
                         // 输出到本地路径 WEB-INF/classes/uploadFiles
                         v_GifName  = StringHelp.getUUID();
                         v_FileName = v_GifName + StringHelp.getFilePostfix(v_FileName);
@@ -758,6 +756,8 @@ public class FileController
                         }
                         
                         v_FileHelp.copyFile(in ,v_OutFile);
+                        
+                        $Logger.info(v_SaveFullPath);
                         
                         if ( StringHelp.isContains(v_FileName ,".png" ,".jpg" ,".bmp") )
                         {
@@ -790,18 +790,6 @@ public class FileController
                         }
                         else if ( StringHelp.isContains(v_FileName ,".avi" ,".mp4" ,"m4v" ,"mov" ,"3gp" ,"webm") )
                         {
-                            if ( v_FileName.toLowerCase().endsWith(".mp4") )
-                            {
-                                String v_M3U8Path = VideoHelp.mp4ToM3U8(v_SaveFullPath ,v_SaveDir ,3 ,"http://127.0.0.1/msFile/file/paly/" + v_ServiceType + "/");
-                                
-                                if ( !Help.isNull(v_M3U8Path) )
-                                {
-                                    v_SaveFullPath = v_M3U8Path;
-                                    v_FileName = StringHelp.replaceAll(v_FileName ,new String[]{".mp4" ,".MP4" ,".mP4" ,".Mp4"} ,new String[]{".m3u8"});
-                                    v_OutFile.delete();
-                                }
-                            }
-                            
                             VideoInfo v_Video = new VideoInfo();
                             
                             v_Video.setServiceType(v_ServiceType);
@@ -815,7 +803,7 @@ public class FileController
                             v_Video.setGroupInfo(v_GroupInfo);
                             v_Video.setIsShow(1);
                             
-                            this.getVideoInfo(v_OutFile ,v_Video);
+                            this.getVideoInfo(v_SaveFullPath ,v_Video);
                             
                             
                             // 生成缩略图（动图）
@@ -854,6 +842,21 @@ public class FileController
                                 
                                 v_Ret.setId(Help.NVL( v_Ret.getId())  + v_Image.getId());
                                 v_Ret.setUrl(Help.NVL(v_Ret.getUrl()) + v_Image.getUrl());
+                            }
+                            
+                            if ( v_FileName.toLowerCase().endsWith(".mp4") )
+                            {
+                                String v_M3U8Path = VideoHelp.mp4ToM3U8(v_SaveFullPath ,v_SaveDir ,3 ,"http://127.0.0.1/msFile/file/play/" + v_ServiceType + "/");
+                                
+                                if ( !Help.isNull(v_M3U8Path) )
+                                {
+                                    v_SaveFullPath = v_M3U8Path;
+                                    v_FileName     = StringHelp.replaceAll(v_FileName ,new String[]{".mp4" ,".MP4" ,".mP4" ,".Mp4"} ,new String[]{".m3u8"});
+                                    v_OutFile.delete();
+                                    
+                                    v_Video.setUrl(fileServiceURL.getValue() + "/file/showVideo/" + v_ServiceType + "/" + v_FileName);
+                                    v_Video.setPath(v_SaveFullPath);
+                                }
                             }
                             
                             fileService.addVideo(v_Video);
@@ -978,13 +981,13 @@ public class FileController
      * @param i_VideoFile
      * @param io_Video
      */
-    private void getVideoInfo(File i_VideoFile ,VideoInfo io_Video)
+    private void getVideoInfo(String i_VideoFile ,VideoInfo io_Video)
     {
         try
         {
             VideoHelp.$FFMpegHome = this.ffMpegHome.getValue();
             
-            org.hy.common.video.VideoInfo v_Info = VideoHelp.getVideoInfo(i_VideoFile.toString());
+            org.hy.common.video.VideoInfo v_Info = VideoHelp.getVideoInfo(i_VideoFile);
             
             if ( v_Info != null )
             {

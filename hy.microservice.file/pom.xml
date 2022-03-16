@@ -119,12 +119,18 @@
             <version>8.0.22</version>
         </dependency>
         
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.68.Final</version>
+        </dependency>
+        
         <!-- https://github.com/HY-ZhengWei/hy.common.base -->
         <!-- https://gitee.com/HY-ZhengWei/hy.common.base -->
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.base</artifactId>
-            <version>1.0.157</version>
+            <version>1.0.158</version>
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.license -->

@@ -43,14 +43,14 @@
             
             <item id="MS_File_SaveDir">
                 <name>MS_File_SaveDir</name>
-                <value>C:\WorkSpace\hy.microservice.file\hy.microservice.file\src\main\webapp\video\</value>
+                <value>D:\VideoDatas\</value>
                 <comment>文件服务的本地保存目录</comment>
             </item>
             
             
             <item id="MS_File_FFMpegHome">
                 <name>MS_File_FFMpegHome</name>
-                <value>/usr</value>
+                <value>C:\WorkSpace\hy.common.video\ffmpeg-4.1-win64-static</value>
                 <comment>视频解释命令的安装目录</comment>
             </item>
             

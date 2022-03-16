@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hy.common.Date;
 import org.hy.common.Help;
 import org.hy.common.StringHelp;
 import org.hy.common.app.Param;
@@ -222,9 +223,30 @@ public class FileController
                     i_OFile = v_OFile;
                 }
                 
-                File    v_VideoRootDir = new File(fileServiceSaveDir.getValue() + StringHelp.replaceAll(fileName ,"*" + v_Finds[1] ,"") );
+                Date    v_Now          = Date.getNowTime();
+                String  v_Time         = null;
+                File    v_VideoRootDir = null;
                 File    v_LastTimeFile = null;
                 boolean v_Continue     = true;
+                
+                // 跨天跨零点的处理
+                if ( v_Now.getHours() == 0 )
+                {
+                    v_Time = "";
+                }
+                // 跨小时的处理，并冗余5分钟
+                else if ( v_Now.getMinutes() <= 5 )
+                {
+                    v_Time = Help.getSysPathSeparator() + v_Now.getYMD();
+                }
+                else
+                {
+                    v_Time = Help.getSysPathSeparator() + v_Now.getYMD() + Help.getSysPathSeparator() + StringHelp.lpad(v_Now.getHours() ,2 ,"0");
+                    
+                }
+                v_VideoRootDir = new File(fileServiceSaveDir.getValue() + StringHelp.replaceAll(fileName ,"*" + v_Finds[1] ,"") + v_Time);
+                
+                $Logger.info("准备处理视频：" + fileName + " ;VideoRootDir=" + v_VideoRootDir);
                 
                 if ( "1".equals(i_Live) || "2".equals(i_Live) )
                 {
@@ -236,8 +258,11 @@ public class FileController
                 }
                 else
                 {
+                    int v_WaitCount = 0;
                     do
                     {
+                        $Logger.info("寻找视频：" + "VideoRootDir=" + v_VideoRootDir + "; " + v_Finds[1]);
+                        
                         v_LastTimeFile = FileHelp.findLastName(v_VideoRootDir ,null ,v_Finds[1] ,true);
                         if ( v_LastTimeFile != null )
                         {
@@ -246,13 +271,19 @@ public class FileController
                         
                         if ( v_LastTimeFile == null || (!Help.isNull(i_OFile) && fileName.indexOf(i_OFile) > 0) )
                         {
-                            Thread.sleep(50);
+                            Thread.sleep(100);
+                            v_WaitCount++;
+                            if ( v_WaitCount >= 10 * 20 )
+                            {
+                                $Logger.warn("寻找超时：" + fileName);
+                                return;
+                            }
                         }
                         else
                         {
                             v_Continue = false;
+                            $Logger.info("寻到视频：" + fileName);
                         }
-                        
                     }
                     while ( v_Continue );
                 }
@@ -278,6 +309,13 @@ public class FileController
             FileHelp v_FileHelp = new FileHelp();
             if ( v_RequestURI.toLowerCase().endsWith(".m3u8") )
             {
+                if ( !v_VideoFile.exists() || !v_VideoFile.canRead() )
+                {
+                    $Logger.warn("访问视频：" + fileServiceSaveDir.getValue() + ":" + fileName + "\tof=" + i_OFile);
+                    $Logger.warn("访问视频：" + v_VideoFile.toString());
+                    return;
+                }
+                
                 String v_M3U8Content = v_FileHelp.getContent(v_VideoFile ,"UTF-8" ,true);
                 v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,"http://127.0.0.1/msFile" ,i_Request.getScheme() + "://" + i_Request.getServerName() + (i_Request.getServerPort() == 80 || i_Request.getServerPort() == 443 ? "" : ":" + i_Request.getServerPort()) + "/" + v_RequestURI.split("/")[1]);
                 v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,".ts" ,".ts?token=" + i_Token);
@@ -288,7 +326,7 @@ public class FileController
                     StringBuilder v_M3U8Buffer = new StringBuilder();
                     String []     v_M3U8CArr   = v_M3U8Content.split("\n");
                     int           v_FRootIndex = fileName.lastIndexOf(Help.getSysPathSeparator());
-                    String        v_FRoot      = fileName.substring(0 ,v_FRootIndex);
+                    String        v_FRoot      = StringHelp.replaceAll(fileName.substring(0 ,v_FRootIndex) ,"\\" ,"/");
                     
                     for (String v_Line : v_M3U8CArr)
                     {
@@ -364,6 +402,10 @@ public class FileController
         }
         catch (Exception e)
         {
+            $Logger.error(e);
+        }
+        finally
+        {
             // 此处不用关闭
             /*
             if ( null != v_VideoOut )
@@ -379,8 +421,6 @@ public class FileController
                 }
             }
             */
-            
-            $Logger.error(e);
         }
     }
     
@@ -422,10 +462,17 @@ public class FileController
                 fileName = v_RequestURI.split("play/")[1];
             }
             fileName = URLDecoder.decode(fileName, "UTF-8");
+            fileName = StringHelp.replaceAll(fileName ,"/" ,Help.getSysPathSeparator());
             
-            File   v_VideoFile = new File(fileServiceSaveDir.getValue() + fileName);
+            File v_VideoFile   = new File(fileServiceSaveDir.getValue() + fileName);
             String v_VideoName = v_VideoFile.getName();
             String v_UserAgent = i_Request.getHeader("User-Agent").toLowerCase();
+            
+            if ( !v_VideoFile.exists() || !v_VideoFile.canRead() )
+            {
+                $Logger.warn("请求文件不存在：" + v_RequestURI);
+                v_VideoFile = new File(fileServiceSaveDir.getValue() + "null.ts");
+            }
             
             // 如果是火狐浏览器的话，设置浏览器的编码格式
             if ( v_UserAgent.indexOf("firefox") != -1 )
@@ -456,6 +503,10 @@ public class FileController
         }
         catch (Exception e)
         {
+            $Logger.error(e);
+        }
+        finally
+        {
             if ( null != v_VideoInput )
             {
                 try
@@ -466,6 +517,8 @@ public class FileController
                 {
                     e1.printStackTrace();
                 }
+                
+                v_VideoInput = null;
             }
             
             // 此处不用关闭

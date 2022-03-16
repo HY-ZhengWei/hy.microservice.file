@@ -19,6 +19,7 @@
         height: 100%;
         margin: 0px;
         padding: 0px;
+        background-color: #000000;
     }
     
     #HYVideoA {

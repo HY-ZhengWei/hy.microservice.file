@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hy.common.Date;
+import org.hy.common.ExpireMap;
 import org.hy.common.Help;
 import org.hy.common.StringHelp;
 import org.hy.common.app.Param;
@@ -56,7 +57,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 public class FileController
 {
     
-    private static final Logger $Logger = new Logger(FileController.class);
+    private static final Logger                    $Logger       = new Logger(FileController.class);
+    
+    private static final ExpireMap<String ,String> $NewestVideos = new ExpireMap<String ,String>();
     
     @Autowired
     @Qualifier("FileService")
@@ -171,13 +174,79 @@ public class FileController
     
     
     /**
+     * 寻找时间线最新的视频文件
+     * 
+     * @param i_VideoRootDir      寻找视频文件的根目录
+     * @param i_OFile
+     * @param i_VideoNameSuffix   寻找视频文件的扩展名
+     * @param i_VideoNameID       寻找视频文件的标识ID
+     * @return
+     */
+    private synchronized String findNewestVideo(File i_VideoRootDir ,String i_OFile ,String i_VideoNameSuffix ,String i_VideoNameID)
+    {
+        int     v_WaitCount    = 0;
+        boolean v_Continue     = true;
+        File    v_LastTimeFile = null;
+        String  v_RetFileName  = $NewestVideos.get(i_VideoNameID);
+        String  v_LogInfo      = i_VideoNameID + "；" + i_VideoRootDir.toString() + Help.getSysPathSeparator() + i_VideoNameSuffix;
+        
+        if ( !Help.isNull(v_RetFileName) )
+        {
+            // 10秒内取高速缓存中的
+            return v_RetFileName;
+        }
+        
+        $Logger.info("准备处理视频：" + v_LogInfo);
+        
+        do
+        {
+            $Logger.info("寻找视频：" + v_LogInfo);
+            v_LastTimeFile = FileHelp.findLastName(i_VideoRootDir ,null ,i_VideoNameSuffix ,true);
+            
+            if ( v_LastTimeFile != null )
+            {
+                v_RetFileName = StringHelp.replaceAll(v_LastTimeFile.toString() ,fileServiceSaveDir.getValue() ,"");
+            }
+            
+            if ( v_LastTimeFile == null || (!Help.isNull(i_OFile) && v_RetFileName.indexOf(i_OFile) > 0) )
+            {
+                try
+                {
+                    Thread.sleep(100);
+                }
+                catch (Exception exce)
+                {
+                    // Nothing.
+                }
+                
+                v_WaitCount++;
+                if ( v_WaitCount >= 10 * 20 )
+                {
+                    $Logger.warn("寻找超时：" + v_LogInfo);
+                    return null;
+                }
+            }
+            else
+            {
+                v_Continue = false;
+            }
+        }
+        while ( v_Continue );
+        
+        $NewestVideos.put(i_VideoNameID ,v_RetFileName ,10);
+        $Logger.info("寻到视频：" + v_RetFileName);
+        return v_RetFileName;
+    }
+    
+    
+    
+    /**
      * 显示视频
      * 
      * @author      ZhengWei(HY)
      * @createDate  2020-11-12
      * @version     v1.0
      *              v2.0  2021-06-18  升级：改为支持M3U8的视频显示
-     * 
      *
      * @param fileName
      * @param i_Request
@@ -226,8 +295,6 @@ public class FileController
                 Date    v_Now          = Date.getNowTime();
                 String  v_Time         = null;
                 File    v_VideoRootDir = null;
-                File    v_LastTimeFile = null;
-                boolean v_Continue     = true;
                 
                 // 跨天跨零点的处理
                 if ( v_Now.getHours() == 0 )
@@ -246,11 +313,9 @@ public class FileController
                 }
                 v_VideoRootDir = new File(fileServiceSaveDir.getValue() + StringHelp.replaceAll(fileName ,"*" + v_Finds[1] ,"") + v_Time);
                 
-                $Logger.info("准备处理视频：" + fileName + " ;VideoRootDir=" + v_VideoRootDir);
-                
                 if ( "1".equals(i_Live) || "2".equals(i_Live) )
                 {
-                    v_LastTimeFile = FileHelp.findLastName(v_VideoRootDir ,null ,v_Finds[1] ,true);
+                    File v_LastTimeFile = FileHelp.findLastName(v_VideoRootDir ,null ,v_Finds[1] ,true);
                     if ( v_LastTimeFile != null )
                     {
                         fileName = StringHelp.replaceAll(v_LastTimeFile.toString() ,fileServiceSaveDir.getValue() ,"");
@@ -258,34 +323,12 @@ public class FileController
                 }
                 else
                 {
-                    int v_WaitCount = 0;
-                    do
-                    {
-                        $Logger.info("寻找视频：" + "VideoRootDir=" + v_VideoRootDir + "; " + v_Finds[1]);
-                        
-                        v_LastTimeFile = FileHelp.findLastName(v_VideoRootDir ,null ,v_Finds[1] ,true);
-                        if ( v_LastTimeFile != null )
-                        {
-                            fileName = StringHelp.replaceAll(v_LastTimeFile.toString() ,fileServiceSaveDir.getValue() ,"");
-                        }
-                        
-                        if ( v_LastTimeFile == null || (!Help.isNull(i_OFile) && fileName.indexOf(i_OFile) > 0) )
-                        {
-                            Thread.sleep(100);
-                            v_WaitCount++;
-                            if ( v_WaitCount >= 10 * 20 )
-                            {
-                                $Logger.warn("寻找超时：" + fileName);
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            v_Continue = false;
-                            $Logger.info("寻到视频：" + fileName);
-                        }
-                    }
-                    while ( v_Continue );
+                    fileName = findNewestVideo(v_VideoRootDir ,i_OFile ,v_Finds[1] ,fileName);
+                }
+                
+                if ( Help.isNull(fileName) )
+                {
+                    return;
                 }
             }
             

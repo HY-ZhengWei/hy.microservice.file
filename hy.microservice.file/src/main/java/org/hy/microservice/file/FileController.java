@@ -514,7 +514,7 @@ public class FileController
             if ( !v_VideoFile.exists() || !v_VideoFile.canRead() )
             {
                 $Logger.warn("请求文件不存在：" + v_RequestURI);
-                v_VideoFile = new File(fileServiceSaveDir.getValue() + "null.ts");
+                v_VideoFile = new File(fileServiceSaveDir.getValue() + "loading.ts");
             }
             
             // 如果是火狐浏览器的话，设置浏览器的编码格式

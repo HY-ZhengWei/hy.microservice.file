@@ -94,6 +94,7 @@ public class FileController
      *
      * @param fileName
      * @param i_Request
+     * @param i_Structure   文件结构，simple：未按日期、时间分目录保存的，所有文件都放在同一个根目录中
      * @return
      * @throws UnsupportedEncodingException
      */
@@ -108,6 +109,7 @@ public class FileController
                           ,@RequestParam(value="control"      ,required=false) String i_IsControl
                           ,@RequestParam(value="reLoad"       ,required=false) String i_IsReLoad
                           ,@RequestParam(value="atob"         ,required=false) String i_AtoB
+                          ,@RequestParam(value="structure"    ,required=false) String i_Structure
                           ,ModelMap io_Model
                           ,HttpServletRequest i_Request
                           ,HttpServletResponse i_Response) throws UnsupportedEncodingException
@@ -116,6 +118,9 @@ public class FileController
         i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");           // 支持cookie跨域
         i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
         i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token");
+        i_Response.setDateHeader("Expires", 0);
+        i_Response.setHeader("Cache-Control", "no-cache, no-store");
+        i_Response.setHeader("Pragma", "no-cache");
         
         String v_RequestURI = i_Request.getRequestURI();
         if ( !v_RequestURI.endsWith(".page") )
@@ -142,7 +147,7 @@ public class FileController
         else if ( "3".equals(i_AtoB) )
         {
             // FFMpeg直接将RTSP转成的HLS流
-            v_M3U8 += "&live=2";
+            v_M3U8 += "&live=2&structure=" + Help.NVL(i_Structure ,"simple");
         }
         
         io_Model.put("videoWidth"        ,Help.NVL(i_Width   ,"100%"));
@@ -250,13 +255,15 @@ public class FileController
      *
      * @param fileName
      * @param i_Request
+     * @param i_Structure   文件结构，simple：未按日期、时间分目录保存的，所有文件都放在同一个根目录中
      * @return
      */
     @RequestMapping(value={"/showVideo/**/{fileName:.+}","/{fileName:.+}"})
     public void showVideo(@PathVariable String fileName
-                         ,@RequestParam(value="token" ,required=false) String i_Token
-                         ,@RequestParam(value="live"  ,required=false) String i_Live
-                         ,@RequestParam(value="of"    ,required=false) String i_OFile
+                         ,@RequestParam(value="token"     ,required=false) String i_Token
+                         ,@RequestParam(value="live"      ,required=false) String i_Live
+                         ,@RequestParam(value="of"        ,required=false) String i_OFile
+                         ,@RequestParam(value="structure" ,required=false) String i_Structure
                          ,HttpServletRequest i_Request
                          ,HttpServletResponse i_Response)
     {
@@ -265,6 +272,9 @@ public class FileController
         i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
         i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token ,Content-Disposition");
         i_Response.setHeader("Access-Control-Expose-Headers"    ,"Content-Disposition");
+        i_Response.setDateHeader("Expires", 0);
+        i_Response.setHeader("Cache-Control", "no-cache, no-store");
+        i_Response.setHeader("Pragma", "no-cache");
         
         OutputStream v_VideoOut = null;
         
@@ -296,20 +306,27 @@ public class FileController
                 String  v_Time         = null;
                 File    v_VideoRootDir = null;
                 
-                // 跨天跨零点的处理
-                if ( v_Now.getHours() == 0 )
+                if ( "simple".equalsIgnoreCase(i_Structure) )
                 {
                     v_Time = "";
                 }
-                // 跨小时的处理，并冗余5分钟
-                else if ( v_Now.getMinutes() <= 5 )
-                {
-                    v_Time = Help.getSysPathSeparator() + v_Now.getYMD();
-                }
                 else
                 {
-                    v_Time = Help.getSysPathSeparator() + v_Now.getYMD() + Help.getSysPathSeparator() + StringHelp.lpad(v_Now.getHours() ,2 ,"0");
-                    
+                    // 跨天跨零点的处理
+                    if ( v_Now.getHours() == 0 )
+                    {
+                        v_Time = "";
+                    }
+                    // 跨小时的处理，并冗余5分钟
+                    else if ( v_Now.getMinutes() <= 5 )
+                    {
+                        v_Time = Help.getSysPathSeparator() + v_Now.getYMD();
+                    }
+                    else
+                    {
+                        v_Time = Help.getSysPathSeparator() + v_Now.getYMD() + Help.getSysPathSeparator() + StringHelp.lpad(v_Now.getHours() ,2 ,"0");
+                        
+                    }
                 }
                 v_VideoRootDir = new File(fileServiceSaveDir.getValue() + StringHelp.replaceAll(fileName ,"*" + v_Finds[1] ,"") + v_Time);
                 
@@ -360,6 +377,8 @@ public class FileController
                 }
                 
                 String v_M3U8Content = v_FileHelp.getContent(v_VideoFile ,"UTF-8" ,true);
+                
+                // http://127.0.0.1/msFile/file/play/T1N151/2022-12-09/14/20221209144755.h265.ts
                 v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,"http://127.0.0.1/msFile" ,i_Request.getScheme() + "://" + i_Request.getServerName() + (i_Request.getServerPort() == 80 || i_Request.getServerPort() == 443 ? "" : ":" + i_Request.getServerPort()) + "/" + v_RequestURI.split("/")[1]);
                 v_M3U8Content = StringHelp.replaceAll(v_M3U8Content ,".ts" ,".ts?token=" + i_Token);
                 
@@ -487,6 +506,9 @@ public class FileController
         i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");           // 支持cookie跨域
         i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
         i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token");
+        i_Response.setDateHeader("Expires", 0);
+        i_Response.setHeader("Cache-Control", "no-cache, no-store");
+        i_Response.setHeader("Pragma", "no-cache");
         
         FileInputStream v_VideoInput = null;
         OutputStream    v_VideoOut   = null;

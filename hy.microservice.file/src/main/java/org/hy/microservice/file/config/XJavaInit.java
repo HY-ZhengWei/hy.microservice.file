@@ -1,6 +1,6 @@
 package org.hy.microservice.file.config;
 
-import java.util.*;
+import java.util.List;
 
 import org.hy.common.Help;
 import org.hy.common.app.Param;
@@ -17,13 +17,13 @@ import org.hy.common.xml.plugins.AppInitConfig;
  * 
  * @author      ZhengWei(HY)、马龙
  * @createDate  2020-11-19
- * @version     v1.0  
+ * @version     v1.0
  */
 public class XJavaInit extends AppInitConfig
 {
     private static Logger  $Logger = Logger.getLogger(XJavaInit.class);
     
-    private static boolean $Init = false;  
+    private static boolean $Init = false;
     
     private String xmlRoot;
     
@@ -38,7 +38,7 @@ public class XJavaInit extends AppInitConfig
     
     public XJavaInit(boolean i_IsStartJobs)
     {
-        super(i_IsStartJobs);
+        super(true);
         this.xmlRoot = Help.getClassHomePath();
         init(i_IsStartJobs);
 

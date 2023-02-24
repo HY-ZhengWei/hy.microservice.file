@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -121,6 +122,7 @@ public class FileController
         i_Response.setDateHeader("Expires", 0);
         i_Response.setHeader("Cache-Control", "no-cache, no-store");
         i_Response.setHeader("Pragma", "no-cache");
+        i_Response.setHeader("Accept-Ranges", "bytes");
         
         String v_RequestURI = i_Request.getRequestURI();
         if ( !v_RequestURI.endsWith(".page") )
@@ -275,6 +277,7 @@ public class FileController
         i_Response.setDateHeader("Expires", 0);
         i_Response.setHeader("Cache-Control", "no-cache, no-store");
         i_Response.setHeader("Pragma", "no-cache");
+        i_Response.setHeader("Accept-Ranges", "bytes");
         
         OutputStream v_VideoOut = null;
         
@@ -388,7 +391,16 @@ public class FileController
                     StringBuilder v_M3U8Buffer = new StringBuilder();
                     String []     v_M3U8CArr   = v_M3U8Content.split("\n");
                     int           v_FRootIndex = fileName.lastIndexOf(Help.getSysPathSeparator());
-                    String        v_FRoot      = StringHelp.replaceAll(fileName.substring(0 ,v_FRootIndex) ,"\\" ,"/");
+                    String        v_FRoot      = null;
+                    
+                    if ( v_FRootIndex >= 0 )
+                    {
+                        v_FRoot = StringHelp.replaceAll(fileName.substring(0 ,v_FRootIndex) ,"\\" ,"/");
+                    }
+                    else
+                    {
+                        v_FRoot = StringHelp.replaceAll(fileName ,"\\" ,"/");
+                    }
                     
                     for (String v_Line : v_M3U8CArr)
                     {
@@ -509,6 +521,7 @@ public class FileController
         i_Response.setDateHeader("Expires", 0);
         i_Response.setHeader("Cache-Control", "no-cache, no-store");
         i_Response.setHeader("Pragma", "no-cache");
+        i_Response.setHeader("Accept-Ranges", "bytes");
         
         FileInputStream v_VideoInput = null;
         OutputStream    v_VideoOut   = null;
@@ -553,7 +566,6 @@ public class FileController
             i_Response.addHeader("Content-Length", "" + v_VideoFile.length());
             i_Response.setContentType("video/mpeg4");
             
-            
             // 获取response输出流
             v_VideoOut   = i_Response.getOutputStream();
             v_VideoInput = new FileInputStream(v_VideoFile);
@@ -569,6 +581,192 @@ public class FileController
         catch (Exception e)
         {
             $Logger.error(e);
+        }
+        finally
+        {
+            if ( null != v_VideoInput )
+            {
+                try
+                {
+                    v_VideoInput.close();
+                }
+                catch (IOException e1)
+                {
+                    e1.printStackTrace();
+                }
+                
+                v_VideoInput = null;
+            }
+            
+            // 此处不用关闭
+            /*
+            if ( null != v_VideoOut )
+            {
+                try
+                {
+                    v_VideoOut.close();
+                }
+                catch (IOException e1)
+                {
+                    e1.printStackTrace();
+                }
+            }
+            */
+        }
+    }
+    
+    
+    
+    /**
+     * 直接播放视频本身文件（支持苹果设备的播放）
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2023-02-24
+     * @version     v1.0
+     *
+     * @param fileName
+     * @param i_Request
+     * @param i_Response
+     * @return
+     */
+    @RequestMapping(value={"/showVideoFile/**/{fileName:.+}","/{fileName:.+}"})
+    @ResponseBody
+    public ResponseEntity<Resource> showVideoFile(@PathVariable String fileName ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
+    {
+        i_Response.setHeader("Access-Control-Allow-Origin"      ,"*");              // 支持跨域请求 i_Request.getHeader("Origin")
+        i_Response.setHeader("Access-Control-Allow-Credentials" ,"true");           // 支持cookie跨域
+        i_Response.setHeader("Access-Control-Allow-Methods"     ,"*");
+        i_Response.setHeader("Access-Control-Allow-Headers"     ,"Authorization,Origin, X-Requested-With, Content-Type, Accept,Access-Token");
+        i_Response.setDateHeader("Expires", 0);
+        i_Response.setHeader("Cache-Control", "no-cache, no-store");
+        i_Response.setHeader("Pragma", "no-cache");
+        i_Response.setHeader("Accept-Ranges", "bytes");
+        i_Response.setCharacterEncoding("UTF-8");
+        
+        RandomAccessFile v_VideoInput = null;
+        OutputStream     v_VideoOut   = null;
+        
+        try
+        {
+            String v_RequestURI = i_Request.getRequestURI();
+            if ( v_RequestURI.contains("showVideoFile/") )
+            {
+                fileName = v_RequestURI.split("showVideoFile/")[1];
+            }
+            fileName = URLDecoder.decode(fileName, "UTF-8");
+            
+            File   v_VideoFile = new File(fileServiceSaveDir.getValue() + fileName);
+            String v_VideoName = v_VideoFile.getName();
+            String v_UserAgent = i_Request.getHeader("User-Agent").toLowerCase();
+            
+            if ( !v_VideoFile.exists() || !v_VideoFile.canRead() )
+            {
+                $Logger.warn("请求文件不存在：" + v_RequestURI);
+                return ResponseEntity.notFound().build();
+            }
+            
+            // 如果是火狐浏览器的话，设置浏览器的编码格式
+            if ( v_UserAgent.indexOf("firefox") != -1 )
+            {
+                i_Response.addHeader("Content-Disposition", "attachment;filename=" + new String(v_VideoName.getBytes("GB2312"), "ISO-8859-1"));
+            }
+            else
+            {
+                i_Response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(v_VideoName, "UTF-8"));
+            }
+            
+            if ( fileName.endsWith(".mp4") )
+            {
+                i_Response.setContentType("video/mp4");
+            }
+            
+            // 解决Apple、Mac、iPad、iOS无法播放视频的问题
+            // range的格式为：bytes=0-1
+            String v_Range  = i_Request.getHeader("range");
+            long   v_Start  = 0L;
+            long   v_End    = v_VideoFile.length() - 1;
+            long   v_Length = v_VideoFile.length();
+            if ( !Help.isNull(v_Range) )
+            {
+                $Logger.info("Range = " + v_Range);
+                
+                String [] v_RangeArr = v_Range.split("=");
+                if ( v_RangeArr.length >= 2 )
+                {
+                    String [] v_StartEndArr = v_RangeArr[1].split("-");
+                    
+                    if ( Help.isNumber(v_StartEndArr[0]) )
+                    {
+                        v_Start = Long.valueOf(v_StartEndArr[0]);
+                        if ( v_Start < 0 )
+                        {
+                            v_Start = 0L;
+                        }
+                    }
+                    if ( v_StartEndArr.length >= 2 && Help.isNumber(v_StartEndArr[1]) )
+                    {
+                        v_End = Long.valueOf(v_StartEndArr[1]);
+                    }
+                    
+                    if ( v_End > 0 )
+                    {
+                        v_Length = v_End - v_Start + 1;
+                    }
+                    else
+                    {
+                        v_Length = v_VideoFile.length() - v_Start;
+                        v_End    = v_VideoFile.length() - 1;
+                    }
+                    
+                    i_Response.addHeader("Content-length" ,"" + v_Length);
+                    i_Response.addHeader("Content-Range"  ,"bytes " + v_Start + "-" + v_End + "/" + v_VideoFile.length());
+                }
+                else
+                {
+                    i_Response.addHeader("Content-Length", "" + v_VideoFile.length());
+                }
+            }
+            else
+            {
+                i_Response.addHeader("Content-Length", "" + v_VideoFile.length());
+            }
+            
+            
+            // 读取视频文件，并返回response输出流
+            byte [] v_VideoBuffer = new byte[1024];
+            int     v_BufferLen   = 0;
+            
+            v_VideoInput = new RandomAccessFile(v_VideoFile, "r");    // 只读模式
+            v_VideoInput.seek(v_Start);                               // 截取部分视频的内容
+            v_VideoOut = i_Response.getOutputStream();
+            
+            while ( v_Length > 0 )
+            {
+                v_BufferLen = v_VideoInput.read(v_VideoBuffer);
+                
+                if ( v_Length < v_BufferLen )
+                {
+                    v_VideoOut.write(v_VideoBuffer ,0 ,(int) v_Length);
+                }
+                else
+                {
+                    v_VideoOut.write(v_VideoBuffer ,0 ,v_BufferLen);
+                    if ( v_BufferLen < v_VideoBuffer.length )
+                    {
+                        // 已读到文件结尾
+                        break;
+                    }
+                }
+                
+                v_Length -= v_BufferLen;
+            }
+            
+            return ResponseEntity.ok().build();
+        }
+        catch (Exception e)
+        {
+            $Logger.error(e);
+            return ResponseEntity.notFound().build();
         }
         finally
         {
@@ -635,6 +833,7 @@ public class FileController
         }
         catch (Exception e)
         {
+            $Logger.error(e);
             return ResponseEntity.notFound().build();
         }
     }
@@ -673,6 +872,7 @@ public class FileController
         }
         catch (Exception e)
         {
+            $Logger.error(e);
             return ResponseEntity.notFound().build();
         }
     }
@@ -711,6 +911,7 @@ public class FileController
         }
         catch (Exception e)
         {
+            $Logger.error(e);
             return ResponseEntity.notFound().build();
         }
     }
@@ -749,6 +950,7 @@ public class FileController
         }
         catch (Exception e)
         {
+            $Logger.error(e);
             return ResponseEntity.notFound().build();
         }
     }
@@ -787,6 +989,7 @@ public class FileController
         }
         catch (Exception e)
         {
+            $Logger.error(e);
             return ResponseEntity.notFound().build();
         }
     }
@@ -1049,7 +1252,7 @@ public class FileController
         }
         catch (Exception exce)
         {
-            exce.printStackTrace();
+            $Logger.error(exce);
         }
         
         v_Ret.setUrl("");
@@ -1083,7 +1286,7 @@ public class FileController
         }
         catch (Exception exce)
         {
-            exce.printStackTrace();
+            $Logger.error(exce);
         }
     }
     
@@ -1120,9 +1323,9 @@ public class FileController
                 }
             }
         }
-        catch (Exception e)
+        catch (Exception exce)
         {
-            e.printStackTrace();
+            $Logger.error(exce);
         }
     }
     

@@ -1,5 +1,6 @@
 var ofile = '';
 var oTime = -1;
+var hyVideo = null;
 
 
 
@@ -120,10 +121,17 @@ function reloadVideo(i_VideoObj ,i_VideoUrl)
  */
 function getVideoUrl(i_CallBackFun ,i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i_IsControl ,i_Width ,i_Height ,i_VideoUrl)
 {
+    if ( i_CallBackFun != null )
+    { 
+        i_CallBackFun(i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i_IsControl ,i_Width ,i_Height ,window.atob(i_VideoUrl) ,i_VideoUrl);
+    }
+    return;
+    /* 下面代码不适于苹果 */
+        
     var xhr = new XMLHttpRequest();
     /* 配置请求方式、请求地址以及是否同步 */
     xhr.open('POST', window.atob(i_VideoUrl), true);
-    xhr.responseType = 'blob';
+    /* xhr.responseType = 'blob'; */
     /* 请求成功回调函数 */
     xhr.onload = function(e) 
     {
@@ -215,9 +223,28 @@ function videoInit(i_VideoID ,i_IsAuto ,i_IsLoop ,i_IsReload ,i_IsControl ,i_Wid
     v_Video.width(i_Width);
     v_Video.height(i_Height);
     document.getElementById(i_VideoID).style.opacity = 1;
+    hyVideo = v_Video;
     
     if ( i_IsAuto == "1" )
     {
         v_Video.play();
+    }
+    
+    /* 必须在微信Weixin JSAPI的WeixinJSBridgeReady才能生效自动播放 */
+    document.addEventListener("WeixinJSBridgeReady", function () 
+    {
+        v_Video.play();
+    }, false); 
+}
+
+
+
+/** 允许上层页面iframe内嵌后调用本方法来实现微信内自动播放 */
+window.methods = {
+    videoPlay: () => {
+        if ( hyVideo != null )
+        {
+            hyVideo.play();
+        }
     }
 }

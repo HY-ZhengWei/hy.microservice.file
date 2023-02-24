@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>视频播放</title>
+    
+    <script type="text/javascript" charset="utf-8" src="../jquery/jquery.min.js"></script>
+    
+    <style type="text/css">
+    body { 
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+        background-color: #000000;
+    }
+    
+    #myvideo {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        z-index: 99;
+    }
+    
+    #loadingBar {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .spinner {
+      margin: 100px auto;
+      width: 50px;
+      height: 60px;
+      text-align: center;
+      font-size: 10px;
+    }
+     
+    .spinner > div {
+      height: 100%;
+      width: 6px;
+      display: inline-block;
+       
+      -webkit-animation: stretchdelay 1.2s infinite ease-in-out;
+      animation: stretchdelay 1.2s infinite ease-in-out;
+    }
+    
+    .spinner .rect1 {
+        background-color: #E74C3C;
+    }
+     
+    .spinner .rect2 {
+        background-color: #A569BD;
+      -webkit-animation-delay: -1.1s;
+      animation-delay: -1.1s;
+    }
+     
+    .spinner .rect3 {
+        background-color: #5DADE2;
+      -webkit-animation-delay: -1.0s;
+      animation-delay: -1.0s;
+    }
+     
+    .spinner .rect4 {
+        background-color: #45B39D;
+      -webkit-animation-delay: -0.9s;
+      animation-delay: -0.9s;
+    }
+     
+    .spinner .rect5 {
+        background-color: #F5B041;
+      -webkit-animation-delay: -0.8s;
+      animation-delay: -0.8s;
+    }
+     
+    @-webkit-keyframes stretchdelay {
+      0%, 40%, 100% { -webkit-transform: scaleY(0.4) } 
+      20% { -webkit-transform: scaleY(1.0) }
+    }
+     
+    @keyframes stretchdelay {
+      0%, 40%, 100% {
+        transform: scaleY(0.4);
+        -webkit-transform: scaleY(0.4);
+      }  20% {
+        transform: scaleY(1.0);
+        -webkit-transform: scaleY(1.0);
+      }
+    }
+    </style>
+</head>
+<body>
+    <iframe id="iframeVideo" class="bottomBar" src="http://192.168.31.7/hy.microservice.file/file/getVideo/20230221/20230221.page?auto=1&loopPlayback=1" width="100%" height="500" scrolling="no" frameborder="no" border="0" marginwidth="0" marginheight="0" allowtransparency="yes" allow="autoplay" allowfullscreen="true"></iframe>
+
+
+<script language="javascript">
+    $(document).ready(function()
+    {
+        document.addEventListener("WeixinJSBridgeReady", function () 
+        {
+            let v_IframeVideo = document.getElementById("iframeVideo").contentWindow.window.methods;
+            v_IframeVideo.videoPlay();
+        }, false); 
+    });
+</script>
+</body>
+</html>

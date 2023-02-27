@@ -106,7 +106,7 @@
 </head>
 <body>
     <video id="HYVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" language="zh-CN"
-           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page" <#if videoSizeFit == 'fill' >style="object-fit: fill"</#if>>
+           poster="${videoImage}" data-setup='{}' x5-video-player-type="h5-page" webkit-playsinline playsinline x5-video-player-type="h5-page" <#if videoSizeFit == 'fill' >style="object-fit: fill"</#if>>
     </video>
     
     <div id="loadingBar">
@@ -130,7 +130,6 @@
         var v_IsLoop      = "${videoLoopPlayback}";
         var v_IsReload    = "${videoReLoad}";
         var v_IsControl   = "${videoControl}";
-        
         
         $(document).ready(function()
         {

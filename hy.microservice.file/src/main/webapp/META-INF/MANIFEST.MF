@@ -3,4 +3,4 @@ Created-By: HY.ZhengWei@qq.com  2020
 Specification-Version: 1.0.6  2023-02-27
 SourceCode: https://github.com/HY-ZhengWei/hy.microservice.file
 SourceCodeChina: https://gitee.com/HY-ZhengWei/hy.microservice.file
-Build-JDK: 1.8
+Build-JDK: OpenJDK 1.8
